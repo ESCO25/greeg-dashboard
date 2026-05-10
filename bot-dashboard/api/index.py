@@ -9,7 +9,7 @@ import hashlib
 import secrets
 import hmac
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None)
 CORS(app)
 
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb+srv://aabohasn97_db_user:Wu0dwnqjDa8V7LG6@greg.lk9lpsg.mongodb.net/greeg?appName=GREG")
@@ -305,6 +305,10 @@ def delete_role(role_id):
     d["bot_roles"].delete_one({"_id": ObjectId(role_id), "guild_id": GUILD_ID})
     return jsonify({"success": True})
 
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "ok"})
+
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Not found"}), 404
@@ -312,4 +316,3 @@ def not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return jsonify({"error": "Server error"}), 500
-
