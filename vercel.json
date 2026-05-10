@@ -1,64 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/auth",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/stats",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/verify-settings",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/bans",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/unban",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/queue(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/members",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/auto-replies(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/config",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/roles(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/api/health",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "public/index.html"
-    }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.py" }
   ],
   "env": {
     "MONGO_URI": "mongodb+srv://aabohasn97_db_user:Wu0dwnqjDa8V7LG6@greg.lk9lpsg.mongodb.net/greeg?appName=GREG",
