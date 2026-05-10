@@ -3,626 +3,818 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لوحة تحكم Greeg Bot</title>
+<title>Greeg Bot — لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 :root {
-  --bg: #0f0f1a;
-  --card: #1a1a2e;
-  --card2: #222240;
+  --bg: #0b0c12;
+  --surface: #14151f;
+  --surface2: #1a1b28;
+  --surface3: #212233;
+  --border: #262840;
+  --border2: #2f3150;
   --primary: #5865f2;
-  --success: #57f287;
+  --primary2: #4752c4;
+  --primary-glow: rgba(88,101,242,0.2);
+  --success: #3ba55d;
+  --success2: #2d7d46;
   --danger: #ed4245;
-  --warning: #fee75c;
-  --text: #e4e4f0;
-  --text2: #9d9db5;
-  --border: #2a2a4a;
+  --warning: #faa61a;
+  --pink: #ed5b9e;
+  --text: #e6e8ed;
+  --text2: #9699a8;
+  --text3: #5c5f73;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'Segoe UI', 'Tahoma', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--primary)}
+::selection{background:var(--primary);color:#fff}
+
+/* LOGIN */
+.login-wrap{display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:1000;background-image:radial-gradient(ellipse at 50% 0,rgba(88,101,242,.08) 0,transparent 60%)}
+.login-wrap.show{display:flex}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:44px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.5);width:100%;max-width:400px;position:relative;overflow:hidden;animation:fadeUp .5s ease}
+.login-card::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(88,101,242,.12),transparent 70%);pointer-events:none}
+.login-logo{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#5865f2,#7289da,#ed5b9e);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px;box-shadow:0 8px 32px rgba(88,101,242,.35);animation:pulseGlow 3s ease-in-out infinite}
+.login-card h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:4px}
+.login-card p{color:var(--text2);font-size:14px;margin-bottom:28px}
+.l-input{width:100%;padding:14px 18px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;font-family:'Cairo',sans-serif;outline:none;transition:.25s;margin-bottom:16px;text-align:right}
+.l-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow)}
+.l-btn{width:100%;padding:14px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;font-size:16px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;transition:.25s;box-shadow:0 4px 20px rgba(88,101,242,.35)}
+.l-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(88,101,242,.45)}
+.l-btn:active{transform:translateY(0)}
+.l-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.l-err{color:var(--danger);font-size:13px;margin-top:10px;display:none;background:rgba(237,66,69,.1);padding:10px 14px;border-radius:var(--radius-sm);border:1px solid rgba(237,66,69,.2)}
+.app{display:none}
+.app.show{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:270px;min-height:100vh;background:var(--surface);border-left:1px solid var(--border);position:fixed;right:0;top:0;bottom:0;display:flex;flex-direction:column;z-index:200;transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;overflow-x:hidden}
+.sb-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.sb-avatar{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#5865f2,#7289da);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden;box-shadow:0 4px 12px rgba(88,101,242,.3)}
+.sb-avatar img{width:100%;height:100%;object-fit:cover}
+.sb-name{font-weight:800;font-size:14px;color:#fff;line-height:1.2}
+.sb-status{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px;margin-top:3px}
+.sb-status .dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success);animation:pulse 2s infinite}
+.sb-sec{padding:8px 16px 4px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:8px}
+.sb-item{display:flex;align-items:center;gap:12px;padding:10px 16px 10px 12px;margin:2px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:.2s;color:var(--text2);font-size:13px;font-weight:600;position:relative}
+.sb-item:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.sb-item.active{background:rgba(88,101,242,.15);color:#fff;box-shadow:inset 3px 0 0 var(--primary)}
+.sb-item .si{width:22px;text-align:center;font-size:16px;flex-shrink:0}
+.sb-item .badge-count{margin-right:auto;font-size:10px;padding:2px 7px;border-radius:10px;background:var(--danger);color:#fff;font-weight:700}
+.sb-footer{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border)}
+.sb-logout{width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.sb-logout:hover{border-color:var(--danger);color:var(--danger);background:rgba(237,66,69,.08)}
+
+/* MAIN */
+.main{margin-right:270px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:64px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.mob-btn{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;padding:4px}
+.topbar-title{font-size:17px;font-weight:800;color:#fff;flex:1}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.topbar-badge{font-size:11px;color:var(--text2);background:var(--surface2);padding:5px 14px;border-radius:20px;border:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite}
+.content{padding:24px 28px;flex:1}
+
+/* PANEL */
+.panel{display:none;animation:fadeUp .35s ease}
+.panel.active{display:block}
+
+/* SERVER HEADER */
+.server-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px 30px;margin-bottom:24px;display:flex;align-items:center;gap:24px;position:relative;overflow:hidden}
+.server-header::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--pink),var(--success));border-radius:16px 16px 0 0}
+.server-icon{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#5865f2,#7289da);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;overflow:hidden;box-shadow:0 8px 24px rgba(88,101,242,.3)}
+.server-icon img{width:100%;height:100%;object-fit:cover}
+.server-info{flex:1}
+.server-info h2{font-size:22px;font-weight:900;color:#fff;display:flex;align-items:center;gap:10px}
+.server-info .sub{color:var(--text2);font-size:13px;margin-top:4px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.server-info .sub span{display:flex;align-items:center;gap:5px}
+.server-actions{display:flex;gap:10px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;transition:.3s;position:relative;overflow:hidden;cursor:default}
+.stat-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;border-radius:16px 16px 0 0}
+.stat-card.cb::before{background:var(--primary)}
+.stat-card.cg::before{background:var(--success)}
+.stat-card.cr::before{background:var(--danger)}
+.stat-card.cy::before{background:var(--warning)}
+.stat-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.stat-icon{font-size:24px;margin-bottom:8px}
+.stat-num{font-size:30px;font-weight:900;color:#fff;line-height:1}
+.stat-label{font-size:12px;color:var(--text2);font-weight:600;margin-top:4px}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px;transition:.2s}
+.card:hover{border-color:var(--border2)}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:15px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* FORM */
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-size:14px;font-family:'Cairo',sans-serif;outline:none;transition:.2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow)}
+.fg textarea{resize:vertical;min-height:70px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* TOGGLE */
+.tgl{position:relative;width:44px;height:24px;flex-shrink:0}
+.tgl input{opacity:0;width:0;height:0}
+.tgl-s{position:absolute;inset:0;background:var(--surface3);border-radius:24px;cursor:pointer;transition:.25s;border:1.5px solid var(--border)}
+.tgl-s::before{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;right:4px;top:50%;transform:translateY(-50%);transition:.25s}
+.tgl input:checked+.tgl-s{background:var(--primary);border-color:var(--primary)}
+.tgl input:checked+.tgl-s::before{right:calc(100% - 20px)}
+.tgl-wrap{display:flex;align-items:center;gap:10px}
+.tgl-label{font-size:13px;font-weight:600;color:var(--text)}
+
+/* BTN */
+.btn{padding:9px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Cairo',sans-serif;transition:.25s;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary2);transform:translateY(-1px);box-shadow:0 4px 16px var(--primary-glow)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:var(--success2);transform:translateY(-1px)}
+.btn-danger{background:transparent;border:1.5px solid var(--danger);color:var(--danger)}
+.btn-danger:hover{background:var(--danger);color:#fff;transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text);background:rgba(255,255,255,.03)}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:6px}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;text-align:right;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:11px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--surface3);padding:2px 7px;border-radius:5px;color:var(--text2);direction:ltr;display:inline-block}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.bg{background:rgba(59,165,93,.12);color:var(--success)}
+.br{background:rgba(237,66,69,.12);color:var(--danger)}
+.bb{background:rgba(88,101,242,.12);color:var(--primary)}
+.by{background:rgba(250,166,26,.12);color:var(--warning)}
+
+/* REPLY */
+.reply-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;transition:.2s}
+.reply-item:hover{border-color:var(--border2)}
+.reply-left{flex:1;min-width:0}
+.reply-trigger{font-weight:700;color:var(--primary);font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.reply-response{color:var(--text2);font-size:13px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reply-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* EMPTY / LOADING */
+.empty{text-align:center;padding:50px 20px;color:var(--text3)}
+.empty .ei{font-size:44px;margin-bottom:10px;opacity:.5}
+.empty p{font-size:14px}
+.loading-row{text-align:center;padding:35px;color:var(--text3)}
+.spin{display:inline-block;width:22px;height:22px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-left:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* STATUS BAR */
+.status-bar{display:flex;align-items:center;gap:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;margin-bottom:20px;flex-wrap:wrap}
+.st-item{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text2)}
+.st-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.st-dot.on{background:var(--success);box-shadow:0 0 8px var(--success)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.st-dot.pulse{animation:pulse 2s infinite}
+
+/* QUICK */
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:24px}
+.quick-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 14px;text-align:center;cursor:pointer;transition:.25s}
+.quick-card:hover{border-color:var(--primary);background:rgba(88,101,242,.06);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.quick-card .qi{font-size:26px;margin-bottom:7px}
+.quick-card p{font-size:12px;font-weight:700;color:var(--text2)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(30px);padding:14px 24px;border-radius:var(--radius);font-size:14px;font-weight:600;z-index:9999;opacity:0;transition:.35s cubic-bezier(.4,0,.2,1);pointer-events:none;display:flex;align-items:center;gap:10px;max-width:90vw}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:rgba(59,165,93,.95);color:#fff;box-shadow:0 8px 32px rgba(59,165,93,.3)}
+.toast.error{background:rgba(237,66,69,.95);color:#fff;box-shadow:0 8px 32px rgba(237,66,69,.3)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-bg.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:500px;box-shadow:0 24px 80px rgba(0,0,0,.5);animation:fadeUp .3s ease}
+.modal h3{font-size:17px;font-weight:800;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+/* OTHER */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border-radius:var(--radius-sm);margin-bottom:6px}
+.sec-title{font-size:12px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin:24px 0 14px;display:flex;align-items:center;gap:10px}
+.sec-title::after{content:'';flex:1;height:1px;background:linear-gradient(to left,var(--border),transparent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 8px 32px rgba(88,101,242,.35)}50%{box-shadow:0 8px 48px rgba(88,101,242,.5)}}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150}
+.overlay.show{display:block}
+.search-input{padding:8px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:13px;font-family:'Cairo',sans-serif;outline:none;transition:.2s;width:180px}
+.search-input:focus{border-color:var(--primary);width:220px}
+.alert{padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.alert-info{background:rgba(88,101,242,.1);border:1px solid rgba(88,101,242,.2);color:var(--primary)}
+.tabs{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:var(--radius);margin-bottom:16px}
+.tab{padding:7px 16px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);transition:.2s;border:none;background:none;font-family:'Cairo',sans-serif}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ACTIVITY */
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{width:34px;height:34px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.activity-content{flex:1}
+.activity-text{font-size:13px}
+.activity-time{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{transform:translateX(100%)}
+  .sidebar.open{transform:none}
+  .main{margin-right:0}
+  .mob-btn{display:block}
+  .grid2,.frow,.frow3{grid-template-columns:1fr}
+  .content{padding:14px 16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .quick-grid{grid-template-columns:repeat(3,1fr)}
+  .topbar{padding:0 14px}
+  .server-header{flex-direction:column;text-align:center;padding:20px}
+  .server-header .server-actions{align-self:center}
 }
-.sidebar {
-  position: fixed; right: 0; top: 0; width: 240px; height: 100vh;
-  background: var(--card); border-left: 1px solid var(--border);
-  padding: 20px 0; z-index: 100; overflow-y: auto;
-  transition: transform .3s;
-}
-.sidebar .logo { text-align: center; padding: 10px 20px 25px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-.sidebar .logo h2 { color: var(--primary); font-size: 20px; }
-.sidebar .logo small { color: var(--text2); font-size: 12px; }
-.sidebar a {
-  display: flex; align-items: center; gap: 12px; padding: 12px 24px;
-  color: var(--text2); text-decoration: none; transition: .2s;
-  border-right: 3px solid transparent;
-}
-.sidebar a:hover, .sidebar a.active { background: rgba(88,101,242,.1); color: var(--text); border-right-color: var(--primary); }
-.sidebar a .icon { width: 22px; text-align: center; font-size: 18px; }
-.main { margin-right: 240px; padding: 24px 30px; }
-.topbar {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 15px 0 25px; border-bottom: 1px solid var(--border); margin-bottom: 25px;
-}
-.topbar h1 { font-size: 22px; font-weight: 700; }
-.topbar .user-info { display: flex; align-items: center; gap: 15px; }
-.logout-btn {
-  padding: 8px 18px; border-radius: 8px; border: 1px solid var(--danger);
-  background: transparent; color: var(--danger); cursor: pointer;
-  font-size: 13px; transition: .2s;
-}
-.logout-btn:hover { background: var(--danger); color: #fff; }
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 30px; }
-.card {
-  background: var(--card); border-radius: 12px; padding: 20px;
-  border: 1px solid var(--border); text-align: center;
-}
-.card .num { font-size: 32px; font-weight: 800; margin: 8px 0; }
-.card .label { color: var(--text2); font-size: 13px; }
-.card .icon-big { font-size: 28px; }
-.card.green { border-top: 3px solid var(--success); }
-.card.red { border-top: 3px solid var(--danger); }
-.card.blue { border-top: 3px solid var(--primary); }
-.card.yellow { border-top: 3px solid var(--warning); }
-.section-title {
-  font-size: 16px; font-weight: 700; margin: 25px 0 15px; display: flex;
-  align-items: center; gap: 10px;
-}
-.form-group { margin-bottom: 15px; }
-.form-group label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
-.form-group input, .form-group select, .form-group textarea {
-  width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
-  background: var(--card); color: var(--text); font-size: 14px; outline: none;
-  font-family: inherit;
-}
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-  border-color: var(--primary);
-}
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.btn {
-  padding: 10px 24px; border-radius: 8px; border: none; cursor: pointer;
-  font-size: 14px; font-weight: 600; transition: .2s; font-family: inherit;
-}
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-primary:hover { opacity: .85; }
-.btn-success { background: var(--success); color: #000; }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-sm { padding: 6px 14px; font-size: 12px; }
-.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-.btn-outline:hover { background: var(--card); }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--border); font-size: 13px; }
-th { color: var(--text2); font-weight: 600; font-size: 12px; text-transform: uppercase; }
-tr:hover td { background: rgba(255,255,255,.02); }
-.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-.badge-green { background: rgba(87,242,135,.15); color: var(--success); }
-.badge-red { background: rgba(237,66,69,.15); color: var(--danger); }
-.badge-blue { background: rgba(88,101,242,.15); color: var(--primary); }
-.empty-state { text-align: center; padding: 40px; color: var(--text2); }
-.empty-state .icon { font-size: 48px; margin-bottom: 10px; }
-.tab-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-.tab-btn {
-  padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border);
-  background: var(--card); color: var(--text2); cursor: pointer; font-size: 13px;
-  transition: .2s; font-family: inherit;
-}
-.tab-btn:hover { border-color: var(--primary); color: var(--text); }
-.tab-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-.panel { display: none; }
-.panel.active { display: block; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-@media (max-width: 768px) {
-  .sidebar { transform: translateX(100%); }
-  .sidebar.open { transform: translateX(0); }
-  .main { margin-right: 0; padding: 15px; }
-  .form-row { grid-template-columns: 1fr; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .topbar h1 { font-size: 16px; }
-  .cards { grid-template-columns: repeat(2, 1fr); }
-}
-.mobile-toggle {
-  display: none; background: none; border: none; color: var(--text);
-  font-size: 24px; cursor: pointer; margin-left: 10px;
-}
-@media (max-width: 768px) {
-  .mobile-toggle { display: block; }
-}
-.toast {
-  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  padding: 12px 24px; border-radius: 10px; font-size: 14px;
-  z-index: 999; opacity: 0; transition: .3s; pointer-events: none;
-}
-.toast.show { opacity: 1; }
-.toast.success { background: var(--success); color: #000; }
-.toast.error { background: var(--danger); color: #fff; }
-.loading { text-align: center; padding: 40px; color: var(--text2); }
-.spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 10px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.login-page {
-  display: flex; align-items: center; justify-content: center; min-height: 100vh;
-  background: var(--bg); padding: 20px;
-}
-.login-card {
-  background: var(--card); border-radius: 16px; padding: 40px;
-  border: 1px solid var(--border); width: 100%; max-width: 400px;
-  text-align: center;
-}
-.login-card h1 { color: var(--primary); margin-bottom: 5px; }
-.login-card p { color: var(--text2); font-size: 14px; margin-bottom: 25px; }
-.login-card input { margin-bottom: 15px; }
-.login-card .btn { width: 100%; }
-.login-page { display: none; }
-.login-page.show { display: flex; }
-.app { display: none; }
-.app.show { display: block; }
-.auto-reply-item {
-  background: var(--card2); border-radius: 10px; padding: 16px;
-  margin-bottom: 10px; border: 1px solid var(--border); display: flex;
-  justify-content: space-between; align-items: center;
-}
-.auto-reply-item .trigger { font-weight: 600; color: var(--primary); }
-.auto-reply-item .response { color: var(--text2); font-size: 13px; margin-top: 4px; }
-.auto-reply-item .actions { display: flex; gap: 8px; }
 </style>
 </head>
 <body>
 
-<div class="login-page show" id="loginPage">
+<!-- LOGIN -->
+<div class="login-wrap show" id="loginPage">
   <div class="login-card">
-    <div style="font-size:48px;margin-bottom:10px;">🛡️</div>
+    <div class="login-logo"><i class="fas fa-shield-halved"></i></div>
     <h1>Greeg Bot</h1>
     <p>لوحة التحكم — أدخل كلمة المرور</p>
-    <input type="password" id="loginPassword" class="form-group" placeholder="كلمة المرور" style="padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;width:100%;outline:none;" onkeydown="if(event.key==='Enter')login()">
-    <button class="btn btn-primary" onclick="login()" id="loginBtn">دخول</button>
-    <div style="color:var(--danger);font-size:13px;margin-top:10px;display:none" id="loginError">❌ كلمة المرور غير صحيحة</div>
+    <input type="password" id="loginPw" class="l-input" placeholder="كلمة المرور" autofocus>
+    <button class="l-btn" id="loginBtn" onclick="doLogin()"><i class="fas fa-arrow-left-to-bracket"></i> دخول</button>
+    <div class="l-err" id="loginErr"></div>
   </div>
 </div>
 
+<!-- APP -->
 <div class="app" id="app">
-  <div class="sidebar" id="sidebar">
-    <div class="logo">
-      <h2>🛡️ Greeg</h2>
-      <small>لوحة التحكم</small>
-    </div>
-    <a href="#" class="active" onclick="switchTab('overview',this)"><span class="icon">📊</span> الرئيسية</a>
-    <a href="#" onclick="switchTab('verify',this)"><span class="icon">🛡️</span> التحقق</a>
-    <a href="#" onclick="switchTab('autoreply',this)"><span class="icon">🤖</span> الردود التلقائية</a>
-    <a href="#" onclick="switchTab('bans',this)"><span class="icon">🚫</span> المحظورون</a>
-    <a href="#" onclick="switchTab('members',this)"><span class="icon">👥</span> الأعضاء</a>
-    <a href="#" onclick="switchTab('config',this)"><span class="icon">⚙️</span> إعدادات البوت</a>
-  </div>
+  <div class="overlay" id="overlay" onclick="closeSb()"></div>
 
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-avatar" id="sbAvatar"><i class="fas fa-shield-halved"></i></div>
+      <div>
+        <div class="sb-name">Greeg Bot</div>
+        <div class="sb-status"><span class="dot"></span><span id="sbGuild">لوحة التحكم</span></div>
+      </div>
+    </div>
+    <div class="sb-sec">عام</div>
+    <div class="sb-item active" onclick="go('overview',this)"><span class="si"><i class="fas fa-chart-pie"></i></span> الرئيسية</div>
+    <div class="sb-sec">الإعدادات</div>
+    <div class="sb-item" onclick="go('config',this)"><span class="si"><i class="fas fa-sliders"></i></span> إعدادات البوت</div>
+    <div class="sb-item" onclick="go('verify',this)"><span class="si"><i class="fas fa-shield"></i></span> التحقق</div>
+    <div class="sb-sec">خصائص البوت</div>
+    <div class="sb-item" onclick="go('autoreply',this)"><span class="si"><i class="fas fa-robot"></i></span> الرد التلقائي</div>
+    <div class="sb-item" onclick="go('roles',this)"><span class="si"><i class="fas fa-tags"></i></span> الرولات</div>
+    <div class="sb-item" onclick="go('bans',this)"><span class="si"><i class="fas fa-ban"></i></span> الحماية والحظر</div>
+    <div class="sb-item" onclick="go('logs',this)"><span class="si"><i class="fas fa-clipboard-list"></i></span> سجل النشاطات</div>
+    <div class="sb-sec">الإدارة</div>
+    <div class="sb-item" onclick="go('members',this)"><span class="si"><i class="fas fa-users"></i></span> الأعضاء</div>
+    <div class="sb-item" onclick="go('queue',this)"><span class="si"><i class="fas fa-clock"></i></span> قائمة الانتظار</div>
+    <div class="sb-footer">
+      <button class="sb-logout" onclick="doLogout()"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
   <div class="main">
     <div class="topbar">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-        <h1 id="pageTitle">الرئيسية</h1>
-      </div>
-      <div class="user-info">
-        <span style="color:var(--text2);font-size:13px;" id="guildInfo"></span>
-        <button class="logout-btn" onclick="logout()">تسجيل خروج</button>
+      <button class="mob-btn" onclick="openSb()"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title" id="pageTitle">الرئيسية</div>
+      <div class="topbar-actions">
+        <div class="topbar-badge"><span class="live-dot"></span> <span id="topGuild">—</span></div>
+        <button class="btn btn-ghost btn-sm" onclick="refreshCurrent()"><i class="fas fa-rotate"></i></button>
       </div>
     </div>
 
-    <div id="overviewPanel" class="panel active">
-      <div class="cards" id="statsCards">
-        <div class="card blue"><div class="icon-big">📋</div><div class="num" id="statRequested">-</div><div class="label">طلبات التحقق</div></div>
-        <div class="card green"><div class="icon-big">✅</div><div class="num" id="statApproved">-</div><div class="label">تم القبول</div></div>
-        <div class="card red"><div class="icon-big">❌</div><div class="num" id="statRejected">-</div><div class="label">تم الرفض</div></div>
-        <div class="card green"><div class="icon-big">👥</div><div class="num" id="statMembers">-</div><div class="label">أعضاء موثقون</div></div>
-        <div class="card red"><div class="icon-big">🚫</div><div class="num" id="statBans">-</div><div class="label">محظورون</div></div>
-        <div class="card yellow"><div class="icon-big">⏳</div><div class="num" id="statQueue">-</div><div class="label">قيد الانتظار</div></div>
-      </div>
-      <div class="grid-2">
-        <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-          <div class="section-title">⚡ إجراءات سريعة</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <button class="btn btn-primary" onclick="switchTab('autoreply',document.querySelector('.sidebar a:nth-child(4)'))">➕ إضافة رد تلقائي</button>
-            <button class="btn btn-outline" onclick="switchTab('verify',document.querySelector('.sidebar a:nth-child(3)'))">🛡️ إعدادات التحقق</button>
-            <button class="btn btn-outline" onclick="location.reload()">🔄 تحديث الإحصائيات</button>
-          </div>
-        </div>
-        <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-          <div class="section-title">📡 حالة البوت</div>
-          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
-            <div><span style="color:var(--text2)">⚙️ API:</span> <span id="apiStatus" style="color:var(--success)">✅ متصل</span></div>
-            <div><span style="color:var(--text2)">🔄 MongoDB:</span> <span style="color:var(--success)">✅ متصل</span></div>
-            <div><span style="color:var(--text2)">🌐 Vercel:</span> <span style="color:var(--success)">✅ نشط</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="content">
 
-    <div id="verifyPanel" class="panel">
-      <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchVerifyTab('settings',this)">⚙️ الإعدادات</button>
-        <button class="tab-btn" onclick="switchVerifyTab('queue',this)">⏳ قائمة الانتظار</button>
-      </div>
-      <div id="verifySettings" class="verify-tab-content">
-        <div class="grid-2">
-          <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-            <div class="section-title">🔧 إعدادات التحقق</div>
-            <div class="form-group"><label>🆔 رول غير موثق (ID)</label><input type="text" id="vUnverifiedRole" placeholder="1497372312041951274"></div>
-            <div class="form-group"><label>✅ رول موثق (ID)</label><input type="text" id="vVerifiedRole" placeholder="1344359636127584289"></div>
-            <div class="form-group"><label>📢 قناة التحقق (ID)</label><input type="text" id="vChannel" placeholder="1493262714695450814"></div>
-            <div class="form-group"><label>📋 قناة السجلات (ID)</label><input type="text" id="vLogChannel" placeholder="اختياري"></div>
-            <div class="form-group"><label>⏰ صلاحية الرابط (دقيقة)</label><input type="number" id="vTokenExpire" value="15"></div>
-            <button class="btn btn-primary" onclick="saveVerifySettings()">💾 حفظ الإعدادات</button>
+      <!-- ===== OVERVIEW ===== -->
+      <div class="panel active" id="p-overview">
+        <div class="server-header" id="serverHeader">
+          <div class="server-icon" id="serverIcon"><i class="fas fa-server"></i></div>
+          <div class="server-info">
+            <h2 id="serverName"><i class="fas fa-fingerprint" style="font-size:16px;color:var(--text3)"></i> جاري التحميل...</h2>
+            <div class="sub" id="serverSub">
+              <span><i class="fas fa-shield-halved" style="color:var(--primary)"></i> <span id="botNameSpan">Greeg Bot</span></span>
+              <span><i class="fas fa-code-branch" style="color:var(--success)"></i> الإصدار 2.0.0</span>
+            </div>
           </div>
-          <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-            <div class="section-title">📊 إحصائيات التحقق</div>
-            <div style="margin-bottom:12px"><span style="color:var(--text2)">📋 طلبات:</span> <strong id="vStatRequested">-</strong></div>
-            <div style="margin-bottom:12px"><span style="color:var(--text2)">✅ مقبول:</span> <strong id="vStatApproved">-</strong></div>
-            <div style="margin-bottom:12px"><span style="color:var(--text2)">❌ مرفوض:</span> <strong id="vStatRejected">-</strong></div>
-            <div style="margin-bottom:12px"><span style="color:var(--text2)">📈 نسبة القبول:</span> <strong id="vStatRate">-%</strong></div>
+          <div class="server-actions">
+            <button class="btn btn-ghost btn-sm" onclick="location.reload()"><i class="fas fa-rotate"></i> تحديث</button>
           </div>
         </div>
-      </div>
-      <div id="verifyQueue" class="verify-tab-content" style="display:none">
-        <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-            <div class="section-title" style="margin:0">⏳ قائمة انتظار التحقق</div>
-            <button class="btn btn-danger btn-sm" onclick="clearQueue()">🗑️ مسح الكل</button>
-          </div>
-          <div id="queueList"><div class="empty-state"><div class="icon">📭</div>لا يوجد عناصر في قائمة الانتظار</div></div>
+        <div class="status-bar">
+          <div class="st-item"><div class="st-dot on pulse"></div> <i class="fas fa-server"></i> API متصل</div>
+          <div class="st-item"><div class="st-dot on"></div> <i class="fas fa-database"></i> MongoDB متصل</div>
+          <div class="st-item" style="margin-right:auto;font-size:11px;color:var(--text3)" id="apiUrlTxt">—</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card cb"><div class="stat-icon"><i class="fas fa-file-signature"></i></div><div class="stat-num" id="s-req">—</div><div class="stat-label">طلبات التحقق</div></div>
+          <div class="stat-card cg"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-num" id="s-app">—</div><div class="stat-label">تم القبول</div></div>
+          <div class="stat-card cr"><div class="stat-icon"><i class="fas fa-times-circle"></i></div><div class="stat-num" id="s-rej">—</div><div class="stat-label">تم الرفض</div></div>
+          <div class="stat-card cg"><div class="stat-icon"><i class="fas fa-user-check"></i></div><div class="stat-num" id="s-mem">—</div><div class="stat-label">أعضاء موثقون</div></div>
+          <div class="stat-card cr"><div class="stat-icon"><i class="fas fa-user-slash"></i></div><div class="stat-num" id="s-ban">—</div><div class="stat-label">محظورون</div></div>
+          <div class="stat-card cy"><div class="stat-icon"><i class="fas fa-hourglass-half"></i></div><div class="stat-num" id="s-que">—</div><div class="stat-label">قيد الانتظار</div></div>
+        </div>
+        <div class="sec-title"><i class="fas fa-bolt"></i> إجراءات سريعة</div>
+        <div class="quick-grid">
+          <div class="quick-card" onclick="go('autoreply',null)"><div class="qi"><i class="fas fa-robot"></i></div><p>رد تلقائي</p></div>
+          <div class="quick-card" onclick="go('verify',null)"><div class="qi"><i class="fas fa-shield"></i></div><p>التحقق</p></div>
+          <div class="quick-card" onclick="go('bans',null)"><div class="qi"><i class="fas fa-ban"></i></div><p>المحظورون</p></div>
+          <div class="quick-card" onclick="go('members',null)"><div class="qi"><i class="fas fa-users"></i></div><p>الأعضاء</p></div>
+          <div class="quick-card" onclick="go('config',null)"><div class="qi"><i class="fas fa-sliders"></i></div><p>الإعدادات</p></div>
+          <div class="quick-card" onclick="location.reload()"><div class="qi"><i class="fas fa-rotate"></i></div><p>تحديث</p></div>
         </div>
       </div>
-    </div>
 
-    <div id="autoreplyPanel" class="panel">
-      <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border);margin-bottom:20px">
-        <div class="section-title">➕ إضافة رد تلقائي جديد</div>
-        <div class="form-row">
-          <div class="form-group"><label>🔑 كلمة التحريك (trigger)</label><input type="text" id="arTrigger" placeholder="مثال: مرحبا"></div>
-          <div class="form-group"><label>📝 الرد</label><input type="text" id="arResponse" placeholder="مثال: أهلاً بك 👋"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>📢 القناة (ID — اترك فارغاً للكل)</label><input type="text" id="arChannel" placeholder="اختياري"></div>
-          <div class="form-group"><label>🔍 نوع التطابق</label>
-            <select id="arMatchType">
-              <option value="exact">تام (exact)</option>
-              <option value="contains">يحتوي (contains)</option>
-              <option value="starts">يبدأ بـ (starts)</option>
-            </select>
+      <!-- ===== CONFIG ===== -->
+      <div class="panel" id="p-config">
+        <div class="grid2">
+          <div class="card">
+            <div class="card-head"><div class="card-title"><i class="fas fa-sliders" style="color:var(--primary)"></i> إعدادات عامة</div></div>
+            <div class="fg"><label><i class="fas fa-hashtag"></i> البادئة (Prefix)</label><input type="text" id="cfgPrefix" placeholder="!" dir="ltr" style="text-align:left"></div>
+            <div class="fg"><label><i class="fas fa-circle-info"></i> حالة البوت</label><input type="text" id="cfgStatus" placeholder="حالة البوت"></div>
+            <div class="fg"><label><i class="fas fa-scroll"></i> قناة السجلات (ID)</label><input type="text" id="cfgLogChannel" placeholder="اختياري" dir="ltr" style="text-align:left"></div>
+            <button class="btn btn-primary" onclick="saveConfig()"><i class="fas fa-floppy-disk"></i> حفظ التغييرات</button>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title"><i class="fas fa-hand-wave" style="color:var(--warning)"></i> إعدادات الترحيب</div></div>
+            <div class="fg"><div class="tgl-wrap"><label class="tgl"><input type="checkbox" id="cfgWelcomeEnabled" checked><span class="tgl-s"></span></label><span class="tgl-label">تفعيل رسالة الترحيب</span></div></div>
+            <div class="fg"><label><i class="fas fa-hashtag"></i> قناة الترحيب (ID)</label><input type="text" id="cfgWelcomeChannel" placeholder="اختياري" dir="ltr" style="text-align:left"></div>
+            <div class="fg"><label><i class="fas fa-message"></i> رسالة الترحيب</label><textarea id="cfgWelcomeMessage" placeholder="🎉 مرحباً بك {member} في السيرفر!"></textarea></div>
+            <button class="btn btn-primary" onclick="saveConfig()"><i class="fas fa-floppy-disk"></i> حفظ</button>
           </div>
         </div>
-        <button class="btn btn-success" onclick="addAutoReply()">➕ إضافة</button>
-      </div>
-      <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-        <div class="section-title">📋 الردود التلقائية الحالية</div>
-        <div id="autoReplyList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
-      </div>
-    </div>
-
-    <div id="bansPanel" class="panel">
-      <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-        <div class="section-title">🚫 قائمة المحظورين</div>
-        <div id="bansList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
-      </div>
-    </div>
-
-    <div id="membersPanel" class="panel">
-      <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-        <div class="section-title">👥 الأعضاء الموثقون</div>
-        <div id="membersList"><div class="loading"><div class="spinner"></div>جاري التحميل...</div></div>
-      </div>
-    </div>
-
-    <div id="configPanel" class="panel">
-      <div class="grid-2">
-        <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-          <div class="section-title">⚙️ إعدادات البوت العامة</div>
-          <div class="form-group"><label>❗ البادئة (Prefix)</label><input type="text" id="cfgPrefix" value="!"></div>
-          <div class="form-group"><label>📝 حالة البوت (Status)</label><input type="text" id="cfgStatus" value="اشوفكم بصمة😶‍🌫️"></div>
-          <div class="form-group"><label>📢 قناة الترحيب (ID)</label><input type="text" id="cfgWelcomeChannel" placeholder="اختياري"></div>
-          <div class="form-group"><label>💬 رسالة الترحيب</label><textarea id="cfgWelcomeMessage" rows="3" placeholder="{member} = منشن العضو">🎉 مرحباً بك {member} في السيرفر!</textarea></div>
-          <div class="form-group"><label>📋 قناة السجلات (ID)</label><input type="text" id="cfgLogChannel" placeholder="اختياري"></div>
-          <div class="form-group"><label><input type="checkbox" id="cfgWelcomeEnabled" checked> تفعيل الترحيب</label></div>
-          <button class="btn btn-primary" onclick="saveConfig()">💾 حفظ الإعدادات</button>
-        </div>
-        <div style="background:var(--card);border-radius:12px;padding:20px;border:1px solid var(--border)">
-          <div class="section-title">📋 معلومات الاتصال</div>
-          <div style="display:flex;flex-direction:column;gap:12px;font-size:14px">
-            <div><span style="color:var(--text2)">🌐 رابط API:</span><br><code id="apiUrl" style="color:var(--primary);font-size:12px;word-break:break-all"></code></div>
-            <div><span style="color:var(--text2)">🆔 Guild ID:</span><br><code id="cfgGuildId" style="font-size:13px"></code></div>
-            <hr style="border-color:var(--border);margin:5px 0">
-            <div style="color:var(--text2);font-size:12px">💡 البوت يقرأ الإعدادات من MongoDB مباشرة. أي تغيير هنا ينطبق فوراً عند إعادة تشغيل البوت.</div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="fas fa-circle-info" style="color:var(--primary)"></i> معلومات النظام</div></div>
+          <div style="display:flex;gap:28px;flex-wrap:wrap">
+            <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px"><i class="fas fa-fingerprint"></i> GUILD ID</div><code id="cfgGuildId">—</code></div>
+            <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px"><i class="fas fa-link"></i> API URL</div><code id="cfgApiUrl">—</code></div>
+            <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px"><i class="fas fa-shield-halved"></i> Version</div><code>v2.0.0</code></div>
           </div>
         </div>
       </div>
+
+      <!-- ===== VERIFY ===== -->
+      <div class="panel" id="p-verify">
+        <div class="grid2">
+          <div class="card">
+            <div class="card-head"><div class="card-title"><i class="fas fa-shield" style="color:var(--success)"></i> إعدادات التحقق</div></div>
+            <div class="fg"><label><i class="fas fa-user-tag"></i> رول غير موثق (ID)</label><input type="text" id="vUnverified" placeholder="1497372312041951274" dir="ltr" style="text-align:left"></div>
+            <div class="fg"><label><i class="fas fa-user-check"></i> رول موثق (ID)</label><input type="text" id="vVerified" placeholder="1344359636127584289" dir="ltr" style="text-align:left"></div>
+            <div class="fg"><label><i class="fas fa-hashtag"></i> قناة التحقق (ID)</label><input type="text" id="vChannel" placeholder="1493262714695450814" dir="ltr" style="text-align:left"></div>
+            <div class="fg"><label><i class="fas fa-scroll"></i> قناة السجلات (ID)</label><input type="text" id="vLog" placeholder="اختياري" dir="ltr" style="text-align:left"></div>
+            <div class="fg"><label><i class="fas fa-clock"></i> صلاحية الرابط (دقيقة)</label><input type="number" id="vExpire" value="15"></div>
+            <button class="btn btn-primary" onclick="saveVerify()"><i class="fas fa-floppy-disk"></i> حفظ الإعدادات</button>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title"><i class="fas fa-chart-bar" style="color:var(--warning)"></i> إحصائيات التحقق</div></div>
+            <div class="stat-row"><span style="color:var(--text2)"><i class="fas fa-file-signature"></i> طلبات</span><strong id="vs-req">—</strong></div>
+            <div class="stat-row"><span style="color:var(--text2)"><i class="fas fa-check-circle"></i> مقبول</span><strong style="color:var(--success)" id="vs-app">—</strong></div>
+            <div class="stat-row"><span style="color:var(--text2)"><i class="fas fa-times-circle"></i> مرفوض</span><strong style="color:var(--danger)" id="vs-rej">—</strong></div>
+            <div class="stat-row"><span style="color:var(--text2)"><i class="fas fa-percentage"></i> نسبة القبول</span><strong style="color:var(--primary)" id="vs-rate">—%</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== AUTO REPLY ===== -->
+      <div class="panel" id="p-autoreply">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="fas fa-plus-circle" style="color:var(--success)"></i> إضافة رد تلقائي جديد</div></div>
+          <div class="frow">
+            <div class="fg"><label><i class="fas fa-keyboard"></i> كلمة التحريك</label><input type="text" id="arTrigger" placeholder="مثال: مرحبا"></div>
+            <div class="fg"><label><i class="fas fa-reply"></i> الرد</label><input type="text" id="arResponse" placeholder="مثال: أهلاً بك 👋"></div>
+          </div>
+          <div class="frow3">
+            <div class="fg"><label><i class="fas fa-list"></i> نوع المطابقة</label>
+              <select id="arMatch"><option value="exact">مطابقة تامة</option><option value="contains">يحتوي على</option><option value="starts">يبدأ بـ</option></select>
+            </div>
+            <div class="fg"><label><i class="fas fa-hashtag"></i> قناة محددة (ID)</label><input type="text" id="arChannel" placeholder="اختياري" dir="ltr" style="text-align:left"></div>
+            <div class="fg" style="display:flex;align-items:flex-end"><button class="btn btn-success" onclick="addReply()" style="width:100%;padding:11px"><i class="fas fa-plus"></i> إضافة</button></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><i class="fas fa-robot" style="color:var(--primary)"></i> الردود التلقائية</div>
+            <span id="replyCount" class="badge bb">0</span>
+          </div>
+          <div id="replyList"><div class="loading-row"><div class="spin"></div> جاري التحميل...</div></div>
+        </div>
+      </div>
+
+      <!-- ===== ROLES ===== -->
+      <div class="panel" id="p-roles">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="fas fa-plus-circle" style="color:var(--success)"></i> إضافة رول</div></div>
+          <div class="frow3">
+            <div class="fg"><label><i class="fas fa-fingerprint"></i> Role ID</label><input type="text" id="rlId" placeholder="1234567890" dir="ltr" style="text-align:left"></div>
+            <div class="fg"><label><i class="fas fa-tag"></i> الاسم</label><input type="text" id="rlName" placeholder="مثال: عضو"></div>
+            <div class="fg"><label><i class="fas fa-folder"></i> التصنيف</label><select id="rlCat"><option value="general">عام</option><option value="mod">إشراف</option><option value="special">خاص</option></select></div>
+          </div>
+          <div class="fg"><label><i class="fas fa-align-left"></i> الوصف (اختياري)</label><input type="text" id="rlDesc" placeholder="وصف الرول"></div>
+          <button class="btn btn-success" onclick="addRole()"><i class="fas fa-plus"></i> إضافة</button>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="fas fa-tags" style="color:var(--pink)"></i> الرولات المسجلة</div></div>
+          <div id="rolesList"><div class="loading-row"><div class="spin"></div> جاري التحميل...</div></div>
+        </div>
+      </div>
+
+      <!-- ===== BANS ===== -->
+      <div class="panel" id="p-bans">
+        <div class="card" style="border-color:rgba(237,66,69,.2)">
+          <div class="card-head"><div class="card-title"><i class="fas fa-ban" style="color:var(--danger)"></i> قائمة المحظورين</div><span id="banCount" class="badge br">0</span></div>
+          <div class="alert alert-info"><i class="fas fa-info-circle"></i> المحظورون لا يمكنهم الوصول إلى السيرفر حتى يتم رفع الحظر.</div>
+          <div id="bansList"><div class="loading-row"><div class="spin"></div> جاري التحميل...</div></div>
+        </div>
+      </div>
+
+      <!-- ===== LOGS ===== -->
+      <div class="panel" id="p-logs">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="fas fa-clipboard-list" style="color:var(--primary)"></i> سجل النشاطات</div></div>
+          <div class="tabs" id="logTabs">
+            <button class="tab active" onclick="loadVerifyLogs(this)">التحقق</button>
+          </div>
+          <div id="logsContent"><div class="loading-row"><div class="spin"></div> جاري التحميل...</div></div>
+        </div>
+      </div>
+
+      <!-- ===== MEMBERS ===== -->
+      <div class="panel" id="p-members">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title"><i class="fas fa-users" style="color:var(--success)"></i> الأعضاء الموثقون</div>
+            <div style="display:flex;gap:10px;align-items:center"><input type="text" class="search-input" placeholder="بحث..." id="memberSearch" oninput="filterMembers(this.value)"><span id="membersCount" class="badge bg">0</span></div>
+          </div>
+          <div id="membersList"><div class="loading-row"><div class="spin"></div> جاري التحميل...</div></div>
+        </div>
+      </div>
+
+      <!-- ===== QUEUE ===== -->
+      <div class="panel" id="p-queue">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="fas fa-clock" style="color:var(--warning)"></i> قائمة انتظار التحقق</div><button class="btn btn-danger btn-sm" onclick="clearQueue()"><i class="fas fa-trash-can"></i> مسح الكل</button></div>
+          <div id="queueList"><div class="loading-row"><div class="spin"></div> جاري التحميل...</div></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <h3><i class="fas fa-pen-to-square" style="color:var(--primary)"></i> تعديل الرد التلقائي</h3>
+    <input type="hidden" id="editId">
+    <div class="fg"><label>كلمة التحريك</label><input type="text" id="editTrigger"></div>
+    <div class="fg"><label>الرد</label><input type="text" id="editResponse"></div>
+    <div class="frow">
+      <div class="fg"><label>نوع المطابقة</label><select id="editMatch"><option value="exact">مطابقة تامة</option><option value="contains">يحتوي على</option><option value="starts">يبدأ بـ</option></select></div>
+      <div class="fg"><label>القناة (ID)</label><input type="text" id="editChannel" dir="ltr" style="text-align:left"></div>
+    </div>
+    <div class="fg"><div class="tgl-wrap"><label class="tgl"><input type="checkbox" id="editEnabled" checked><span class="tgl-s"></span></label><span class="tgl-label">مفعّل</span></div></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">إلغاء</button><button class="btn btn-primary" onclick="saveEdit()"><i class="fas fa-floppy-disk"></i> حفظ</button></div>
+  </div>
+</div>
+
 <script>
-const API_BASE = window.location.origin;
-let token = localStorage.getItem('dashboard_token');
+const API = window.location.origin;
+let token = localStorage.getItem('g_token');
+let membersData = [];
 
-function login() {
-  const pw = document.getElementById('loginPassword').value;
-  if (!pw) return;
-  document.getElementById('loginBtn').textContent = '⏳ جاري...';
-  document.getElementById('loginBtn').disabled = true;
-  fetch(API_BASE + '/api/auth', {
-    method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({password: pw})
-  }).then(r => r.json()).then(d => {
-    if (d.token) {
-      token = d.token;
-      localStorage.setItem('dashboard_token', d.token);
-      document.getElementById('loginPage').classList.remove('show');
-      document.getElementById('app').classList.add('show');
-      if (d.guild_id) document.getElementById('guildInfo').textContent = '🆔 ' + d.guild_id;
-      initDashboard();
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
-  }).catch(() => {
-    document.getElementById('loginError').textContent = '❌ خطأ في الاتصال بالسيرفر';
-    document.getElementById('loginError').style.display = 'block';
-  }).finally(() => {
-    document.getElementById('loginBtn').textContent = 'دخول';
-    document.getElementById('loginBtn').disabled = false;
-  });
+function doLogin(){
+  const pw = document.getElementById('loginPw').value;
+  if(!pw)return;
+  const btn=document.getElementById('loginBtn');
+  btn.innerHTML='<div class="spin" style="width:18px;height:18px;border-width:2px;margin:0"></div> جاري...';
+  btn.disabled=true;
+  fetch(API+'/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})})
+    .then(r=>r.json()).then(d=>{
+      if(d.token){token=d.token;localStorage.setItem('g_token',token);boot(d.guild_id)}
+      else showErr('❌ كلمة المرور غير صحيحة');
+    }).catch(()=>showErr('❌ خطأ في الاتصال'))
+    .finally(()=>{btn.innerHTML='<i class="fas fa-arrow-left-to-bracket"></i> دخول';btn.disabled=false});
 }
+document.getElementById('loginPw').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+function showErr(m){const e=document.getElementById('loginErr');e.innerHTML=m;e.style.display='block'}
 
-function logout() {
-  token = null;
-  localStorage.removeItem('dashboard_token');
-  document.getElementById('app').classList.remove('show');
-  document.getElementById('loginPage').classList.add('show');
-  document.getElementById('loginPassword').value = '';
-  document.getElementById('loginError').style.display = 'none';
-}
-
-function api(path, opts = {}) {
-  const headers = {'Authorization': 'Bearer ' + token, ...(opts.headers || {})};
-  if (opts.body && typeof opts.body === 'object' && !(opts.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-    opts.body = JSON.stringify(opts.body);
-  }
-  return fetch(API_BASE + path, {...opts, headers}).then(r => r.json());
-}
-
-function toast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast ' + type + ' show';
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-function switchTab(name, el) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-  document.getElementById(name + 'Panel').classList.add('active');
-  if (el) el.classList.add('active');
-  const titles = {overview:'الرئيسية',verify:'التحقق',autoreply:'الردود التلقائية',bans:'المحظورون',members:'الأعضاء',config:'إعدادات البوت'};
-  document.getElementById('pageTitle').textContent = titles[name] || name;
-  if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
-}
-
-function switchVerifyTab(name, el) {
-  document.querySelectorAll('.verify-tab-content').forEach(p => p.style.display = 'none');
-  document.querySelectorAll('#verifyPanel .tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('verify' + name.charAt(0).toUpperCase() + name.slice(1)).style.display = 'block';
-  if (el) el.classList.add('active');
-}
-
-function initDashboard() {
-  loadStats();
-  loadVerifySettings();
-  loadQueue();
-  loadAutoReplies();
-  loadBans();
-  loadMembers();
-  loadConfig();
-  document.getElementById('apiUrl').textContent = API_BASE;
-}
-
-function loadStats() {
-  api('/api/stats').then(d => {
-    document.getElementById('statRequested').textContent = d.requested ?? 0;
-    document.getElementById('statApproved').textContent = d.approved ?? 0;
-    document.getElementById('statRejected').textContent = d.rejected ?? 0;
-    document.getElementById('statMembers').textContent = d.verified_members ?? 0;
-    document.getElementById('statBans').textContent = d.bans ?? 0;
-    document.getElementById('statQueue').textContent = d.pending_queue ?? 0;
-    document.getElementById('vStatRequested').textContent = d.requested ?? 0;
-    document.getElementById('vStatApproved').textContent = d.approved ?? 0;
-    document.getElementById('vStatRejected').textContent = d.rejected ?? 0;
-    const total = (d.requested || 0);
-    const rate = total > 0 ? ((d.approved || 0) / total * 100).toFixed(1) + '%' : '0%';
-    document.getElementById('vStatRate').textContent = rate;
-  }).catch(() => toast('فشل تحميل الإحصائيات', 'error'));
-}
-
-function loadVerifySettings() {
-  api('/api/verify-settings').then(d => {
-    document.getElementById('vUnverifiedRole').value = d.unverified_role || '1497372312041951274';
-    document.getElementById('vVerifiedRole').value = d.verified_role || '1344359636127584289';
-    document.getElementById('vChannel').value = d.verify_channel || '1493262714695450814';
-    document.getElementById('vLogChannel').value = d.log_channel || '';
-    document.getElementById('vTokenExpire').value = d.token_expire_min || 15;
-  }).catch(() => {});
-}
-
-function saveVerifySettings() {
-  const data = {
-    unverified_role: parseInt(document.getElementById('vUnverifiedRole').value) || 1497372312041951274,
-    verified_role: parseInt(document.getElementById('vVerifiedRole').value) || 1344359636127584289,
-    verify_channel: parseInt(document.getElementById('vChannel').value) || 1493262714695450814,
-    log_channel: document.getElementById('vLogChannel').value || '',
-    token_expire_min: parseInt(document.getElementById('vTokenExpire').value) || 15,
-  };
-  api('/api/verify-settings', {method: 'POST', body: data}).then(d => {
-    if (d.success) toast('✅ تم حفظ إعدادات التحقق');
-    else toast('❌ فشل الحفظ', 'error');
-  }).catch(() => toast('❌ فشل الحفظ', 'error'));
-}
-
-function loadQueue() {
-  api('/api/queue').then(d => {
-    const el = document.getElementById('queueList');
-    if (!d.queue || d.queue.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">📭</div>لا يوجد عناصر في قائمة الانتظار</div>';
-      return;
-    }
-    let html = '<table><thead><tr><th>Discord ID</th><th>الإجراء</th><th>التاريخ</th></tr></thead><tbody>';
-    d.queue.forEach(q => {
-      html += `<tr><td><code>${q.discord_id || '-'}</code></td><td><span class="badge badge-green">${q.action}</span></td><td>${(q.timestamp||'').slice(0,16)}</td></tr>`;
-    });
-    html += '</tbody></table>';
-    el.innerHTML = html;
-  }).catch(() => {});
-}
-
-function clearQueue() {
-  if (!confirm('مسح جميع عناصر قائمة الانتظار؟')) return;
-  api('/api/queue/clear', {method: 'POST'}).then(d => {
-    if (d.success) { toast('✅ تم المسح'); loadQueue(); }
-  }).catch(() => toast('❌ فشل', 'error'));
-}
-
-function loadAutoReplies() {
-  api('/api/auto-replies').then(d => {
-    const el = document.getElementById('autoReplyList');
-    if (!d.auto_replies || d.auto_replies.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">🤖</div>لا توجد ردود تلقائية</div>';
-      return;
-    }
-    let html = '';
-    d.auto_replies.forEach(r => {
-      const ch = r.channel_id ? ` <span style="color:var(--text2);font-size:11px">📢 <code>${r.channel_id}</code></span>` : '';
-      const badge = r.enabled ? '<span class="badge badge-green">مفعل</span>' : '<span class="badge badge-red">معطل</span>';
-      html += `<div class="auto-reply-item">
-        <div>
-          <div class="trigger">🔑 ${r.trigger} ${badge} ${ch}</div>
-          <div class="response">📝 ${r.response}</div>
-          <div style="color:var(--text2);font-size:11px;margin-top:3px">نوع: ${r.match_type}</div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-danger btn-sm" onclick="deleteAutoReply('${r.id}')">🗑️</button>
-        </div>
-      </div>`;
-    });
-    el.innerHTML = html;
-  }).catch(() => {});
-}
-
-function addAutoReply() {
-  const trigger = document.getElementById('arTrigger').value.trim();
-  const response = document.getElementById('arResponse').value.trim();
-  if (!trigger || !response) { toast('❌ أدخل كلمة التحريك والرد', 'error'); return; }
-  const data = {
-    trigger, response,
-    channel_id: document.getElementById('arChannel').value.trim(),
-    match_type: document.getElementById('arMatchType').value,
-  };
-  api('/api/auto-replies', {method: 'POST', body: data}).then(d => {
-    if (d.success) {
-      toast('✅ تمت الإضافة');
-      document.getElementById('arTrigger').value = '';
-      document.getElementById('arResponse').value = '';
-      document.getElementById('arChannel').value = '';
-      loadAutoReplies();
-    }
-  }).catch(() => toast('❌ فشل', 'error'));
-}
-
-function deleteAutoReply(id) {
-  if (!confirm('حذف هذا الرد التلقائي؟')) return;
-  api('/api/auto-replies/' + id, {method: 'DELETE'}).then(d => {
-    if (d.success) { toast('✅ تم الحذف'); loadAutoReplies(); }
-  }).catch(() => toast('❌ فشل', 'error'));
-}
-
-function loadBans() {
-  api('/api/bans').then(d => {
-    const el = document.getElementById('bansList');
-    if (!d.bans || d.bans.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">🚫</div>لا يوجد محظورون</div>';
-      return;
-    }
-    let html = `<table><thead><tr><th>العضو</th><th>Discord ID</th><th>النوع</th><th>القيمة</th><th>تاريخ الحظر</th><th>إجراء</th></tr></thead><tbody>`;
-    d.bans.forEach(b => {
-      const typeIcons = {ip:'🌐',device:'💻',canvas:'🎨'};
-      html += `<tr>
-        <td>${b.username || 'مجهول'}</td>
-        <td><code style="font-size:11px">${b.discord_id || '-'}</code></td>
-        <td>${typeIcons[b.type] || b.type || '-'}</td>
-        <td><code style="font-size:11px">${(b.value||'').slice(0,25)}</code></td>
-        <td>${(b.banned_at||'').slice(0,10)}</td>
-        <td><button class="btn btn-success btn-sm" onclick="unban('${b.discord_id}')">رفع حظر</button></td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-    el.innerHTML = html;
-  }).catch(() => {});
-}
-
-function unban(discordId) {
-  if (!confirm('رفع الحظر عن هذا العضو؟')) return;
-  api('/api/unban', {method: 'POST', body: {discord_id: discordId}}).then(d => {
-    if (d.success) { toast('✅ تم رفع الحظر'); loadBans(); loadStats(); }
-  }).catch(() => toast('❌ فشل', 'error'));
-}
-
-function loadMembers() {
-  api('/api/members?limit=100').then(d => {
-    const el = document.getElementById('membersList');
-    if (!d.members || d.members.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="icon">👥</div>لا يوجد أعضاء موثقون</div>';
-      return;
-    }
-    let html = `<table><thead><tr><th>اسم العضو</th><th>Discord ID</th><th>IP</th><th>Device ID</th><th>تاريخ التوثيق</th></tr></thead><tbody>`;
-    d.members.forEach(m => {
-      html += `<tr>
-        <td>${m.username || 'مجهول'}</td>
-        <td><code style="font-size:11px">${m.discord_id || '-'}</code></td>
-        <td><code style="font-size:11px">${m.ip || '-'}</code></td>
-        <td><code style="font-size:11px">${m.device_id || '-'}</code></td>
-        <td>${(m.verified_at||'').slice(0,10)}</td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-    el.innerHTML = html;
-  }).catch(() => {});
-}
-
-function loadConfig() {
-  api('/api/config').then(d => {
-    document.getElementById('cfgPrefix').value = d.prefix || '!';
-    document.getElementById('cfgStatus').value = d.bot_status || 'اشوفكم بصمة😶‍🌫️';
-    document.getElementById('cfgWelcomeChannel').value = d.welcome_channel || '';
-    document.getElementById('cfgWelcomeMessage').value = d.welcome_message || '🎉 مرحباً بك {member} في السيرفر!';
-    document.getElementById('cfgLogChannel').value = d.log_channel || '';
-    document.getElementById('cfgWelcomeEnabled').checked = d.welcome_enabled !== false;
-    document.getElementById('cfgGuildId').textContent = d.guild_id || 'لم يتم التحميل';
-  }).catch(() => {});
-}
-
-function saveConfig() {
-  const data = {
-    prefix: document.getElementById('cfgPrefix').value || '!',
-    bot_status: document.getElementById('cfgStatus').value || '',
-    welcome_channel: document.getElementById('cfgWelcomeChannel').value || '',
-    welcome_message: document.getElementById('cfgWelcomeMessage').value || '',
-    log_channel: document.getElementById('cfgLogChannel').value || '',
-    welcome_enabled: document.getElementById('cfgWelcomeEnabled').checked,
-  };
-  api('/api/config', {method: 'POST', body: data}).then(d => {
-    if (d.success) toast('✅ تم حفظ إعدادات البوت');
-    else toast('❌ فشل الحفظ', 'error');
-  }).catch(() => toast('❌ فشل الحفظ', 'error'));
-}
-
-if (token) {
+function boot(gid){
   document.getElementById('loginPage').classList.remove('show');
   document.getElementById('app').classList.add('show');
-  initDashboard();
+  document.getElementById('sbGuild').textContent=gid?'🆔 '+gid:'متصل';
+  document.getElementById('topGuild').textContent=gid?'🆔 '+gid:'متصل';
+  document.getElementById('cfgGuildId').textContent=gid||'—';
+  document.getElementById('cfgApiUrl').textContent=API;
+  document.getElementById('apiUrlTxt').textContent=API;
+  loadBotInfo();
+  initApp();
 }
+
+function doLogout(){
+  token=null;localStorage.removeItem('g_token');
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('loginPage').classList.add('show');
+  document.getElementById('loginPw').value='';
+  document.getElementById('loginErr').style.display='none';
+}
+
+function req(path,opts={}){
+  const h={'Authorization':'Bearer '+token,...(opts.headers||{})};
+  if(opts.body&&typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
+  return fetch(API+path,{...opts,headers:h}).then(r=>r.json());
+}
+
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.innerHTML=(type==='success'?'<i class="fas fa-check-circle"></i> ':'<i class="fas fa-exclamation-circle"></i> ')+msg;
+  t.className='toast '+type+' show';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+const TITLES={overview:'الرئيسية',config:'إعدادات البوت',verify:'التحقق',autoreply:'الرد التلقائي',roles:'الرولات',bans:'الحماية والحظر',logs:'سجل النشاطات',members:'الأعضاء',queue:'قائمة الانتظار'};
+const LOAD={overview:loadStats,config:loadConfig,verify:loadVerify,autoreply:loadReplies,roles:loadRoles,bans:loadBans,logs:loadVerifyLogs,members:loadMembers,queue:loadQueue};
+
+function go(name,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(a=>a.classList.remove('active'));
+  const panel=document.getElementById('p-'+name);if(panel)panel.classList.add('active');
+  if(el)el.classList.add('active');
+  else document.querySelectorAll('.sb-item').forEach(a=>{if((a.getAttribute('onclick')||'').includes("'"+name+"'"))a.classList.add('active')});
+  document.getElementById('pageTitle').textContent=TITLES[name]||name;
+  if(LOAD[name])LOAD[name]();
+  closeSb();
+}
+function openSb(){document.getElementById('sidebar').classList.add('open');document.getElementById('overlay').classList.add('show')}
+function closeSb(){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('show')}
+function closeModal(){document.getElementById('editModal').classList.remove('show')}
+function initApp(){loadStats();loadConfig();loadVerify()}
+function refreshCurrent(){const a=document.querySelector('.panel.active');if(a){const id=a.id.replace('p-','');if(LOAD[id])LOAD[id]();toast('🔄 تم التحديث')}}
+
+/* BOT INFO */
+function loadBotInfo(){
+  fetch(API+'/api/bot-info').then(r=>r.json()).then(d=>{
+    if(d.guild_name)document.getElementById('serverName').textContent=d.guild_name;
+    if(d.bot_name)document.getElementById('botNameSpan').textContent=d.bot_name;
+    if(d.guild_id)document.getElementById('serverSub').innerHTML=`<span><i class="fas fa-fingerprint" style="color:var(--primary)"></i> ${d.guild_id}</span><span><i class="fas fa-code-branch" style="color:var(--success)"></i> الإصدار ${d.version||'2.0.0'}</span>`;
+    const si=document.getElementById('serverIcon');
+    if(d.guild_icon)si.innerHTML='<img src="https://cdn.discordapp.com/icons/'+d.guild_id+'/'+d.guild_icon+'.png" alt="Server Icon" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-server\\\'></i>\'">';
+    const sa=document.getElementById('sbAvatar');
+    if(d.bot_avatar)sa.innerHTML='<img src="https://cdn.discordapp.com/avatars/'+d.bot_id+'/'+d.bot_avatar+'.png" alt="Bot Avatar" onerror="this.parentElement.innerHTML=\'<i class=\\\'fas fa-shield-halved\\\'></i>\'">';
+  }).catch(()=>{});
+}
+
+/* STATS */
+function loadStats(){
+  req('/api/stats').then(d=>{
+    document.getElementById('s-req').textContent=d.requested??0;
+    document.getElementById('s-app').textContent=d.approved??0;
+    document.getElementById('s-rej').textContent=d.rejected??0;
+    document.getElementById('s-mem').textContent=d.verified_members??0;
+    document.getElementById('s-ban').textContent=d.bans??0;
+    document.getElementById('s-que').textContent=d.pending_queue??0;
+    const r=d.requested||0,a=d.approved||0;
+    document.getElementById('vs-req').textContent=r;
+    document.getElementById('vs-app').textContent=a;
+    document.getElementById('vs-rej').textContent=d.rejected||0;
+    document.getElementById('vs-rate').textContent=r>0?Math.round(a/r*100)+'%':'0%';
+  }).catch(()=>{});
+}
+
+/* CONFIG */
+function loadConfig(){
+  req('/api/config').then(d=>{
+    document.getElementById('cfgPrefix').value=d.prefix||'!';
+    document.getElementById('cfgStatus').value=d.bot_status||'';
+    document.getElementById('cfgWelcomeChannel').value=d.welcome_channel||'';
+    document.getElementById('cfgWelcomeMessage').value=d.welcome_message||'';
+    document.getElementById('cfgLogChannel').value=d.log_channel||'';
+    document.getElementById('cfgWelcomeEnabled').checked=d.welcome_enabled!==false;
+    if(d.guild_id)document.getElementById('cfgGuildId').textContent=d.guild_id;
+  }).catch(()=>{});
+}
+function saveConfig(){
+  req('/api/config',{method:'POST',body:{
+    prefix:document.getElementById('cfgPrefix').value||'!',
+    bot_status:document.getElementById('cfgStatus').value||'',
+    welcome_channel:document.getElementById('cfgWelcomeChannel').value||'',
+    welcome_message:document.getElementById('cfgWelcomeMessage').value||'',
+    log_channel:document.getElementById('cfgLogChannel').value||'',
+    welcome_enabled:document.getElementById('cfgWelcomeEnabled').checked,
+  }}).then(d=>{if(d.success)toast('✅ تم حفظ الإعدادات');else toast('❌ فشل الحفظ','error')}).catch(()=>toast('❌ فشل الاتصال','error'));
+}
+
+/* VERIFY */
+function loadVerify(){
+  req('/api/verify-settings').then(d=>{
+    document.getElementById('vUnverified').value=String(d.unverified_role||'');
+    document.getElementById('vVerified').value=String(d.verified_role||'');
+    document.getElementById('vChannel').value=String(d.verify_channel||'');
+    document.getElementById('vLog').value=d.log_channel||'';
+    document.getElementById('vExpire').value=d.token_expire_min||15;
+  }).catch(()=>{});
+}
+function saveVerify(){
+  req('/api/verify-settings',{method:'POST',body:{
+    unverified_role:document.getElementById('vUnverified').value||'',
+    verified_role:document.getElementById('vVerified').value||'',
+    verify_channel:document.getElementById('vChannel').value||'',
+    log_channel:document.getElementById('vLog').value||'',
+    token_expire_min:parseInt(document.getElementById('vExpire').value)||15,
+  }}).then(d=>{if(d.success)toast('✅ تم حفظ إعدادات التحقق');else toast('❌ فشل','error')}).catch(()=>toast('❌ فشل الاتصال','error'));
+}
+
+/* REPLIES */
+function loadReplies(){
+  const el=document.getElementById('replyList');
+  el.innerHTML='<div class="loading-row"><div class="spin"></div> جاري التحميل...</div>';
+  req('/api/auto-replies').then(d=>{
+    document.getElementById('replyCount').textContent=d.count||0;
+    if(!d.auto_replies||!d.auto_replies.length){el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-robot"></i></div><p>لا توجد ردود تلقائية بعد</p></div>';return}
+    el.innerHTML=d.auto_replies.map(r=>
+      `<div class="reply-item">
+        <div class="reply-left">
+          <div class="reply-trigger"><i class="fas fa-keyboard"></i> ${esc(r.trigger)}
+            <span class="badge ${r.enabled?'bg':'br'}">${r.enabled?'<i class="fas fa-check"></i> مفعّل':'<i class="fas fa-xmark"></i> معطّل'}</span>
+            <span class="badge bb">${ml(r.match_type)}</span>
+            ${r.channel_id?'<span class="badge by"><i class="fas fa-hashtag"></i> '+r.channel_id+'</span>':''}
+          </div>
+          <div class="reply-response"><i class="fas fa-reply"></i> ${esc(r.response)}</div>
+        </div>
+        <div class="reply-actions">
+          <button class="btn btn-ghost btn-xs" onclick='openEdit(${JSON.stringify(r).replace(/'/g,"&#39;")})' title="تعديل"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-danger btn-xs" onclick="toggleReply('${r.id}','${r.enabled}')" title="${r.enabled?'تعطيل':'تفعيل'}">${r.enabled?'<i class="fas fa-pause"></i>':'<i class="fas fa-play"></i>'}</button>
+          <button class="btn btn-danger btn-xs" onclick="delReply('${r.id}')" title="حذف"><i class="fas fa-trash-can"></i></button>
+        </div>
+      </div>`
+    ).join('');
+  }).catch(()=>{el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-triangle-exclamation"></i></div><p>فشل التحميل</p></div>'});
+}
+function ml(t){return t==='contains'?'يحتوي':t==='starts'?'يبدأ':'تام'}
+function addReply(){
+  const trigger=document.getElementById('arTrigger').value.trim();
+  const response=document.getElementById('arResponse').value.trim();
+  if(!trigger||!response){toast('❌ أدخل التحريك والرد','error');return}
+  req('/api/auto-replies',{method:'POST',body:{trigger,response,channel_id:document.getElementById('arChannel').value.trim(),match_type:document.getElementById('arMatch').value}})
+    .then(d=>{if(d.success){toast('✅ تمت الإضافة');['arTrigger','arResponse','arChannel'].forEach(id=>document.getElementById(id).value='');loadReplies()}else toast('❌ فشل','error')})
+    .catch(()=>toast('❌ فشل الاتصال','error'));
+}
+function delReply(id){
+  if(!confirm('🗑️ حذف هذا الرد؟'))return;
+  req('/api/auto-replies/'+id,{method:'DELETE'}).then(d=>{if(d.success){toast('✅ تم الحذف');loadReplies()}}).catch(()=>toast('❌ فشل','error'));
+}
+function toggleReply(id,enabled){
+  const newState=enabled==='true'?false:true;
+  req('/api/auto-replies/'+id,{method:'PUT',body:{enabled:newState}}).then(d=>{if(d.success){toast(newState?'✅ تم التفعيل':'✅ تم التعطيل');loadReplies()}}).catch(()=>toast('❌ فشل','error'));
+}
+function openEdit(r){
+  document.getElementById('editId').value=r.id;
+  document.getElementById('editTrigger').value=r.trigger||'';
+  document.getElementById('editResponse').value=r.response||'';
+  document.getElementById('editMatch').value=r.match_type||'exact';
+  document.getElementById('editChannel').value=r.channel_id||'';
+  document.getElementById('editEnabled').checked=r.enabled!==false;
+  document.getElementById('editModal').classList.add('show');
+}
+function saveEdit(){
+  req('/api/auto-replies/'+document.getElementById('editId').value,{method:'PUT',body:{
+    trigger:document.getElementById('editTrigger').value,
+    response:document.getElementById('editResponse').value,
+    match_type:document.getElementById('editMatch').value,
+    channel_id:document.getElementById('editChannel').value,
+    enabled:document.getElementById('editEnabled').checked,
+  }}).then(d=>{if(d.success){toast('✅ تم التعديل');closeModal();loadReplies()}else toast('❌ فشل','error')}).catch(()=>toast('❌ فشل الاتصال','error'));
+}
+
+/* ROLES */
+function loadRoles(){
+  const el=document.getElementById('rolesList');
+  req('/api/roles').then(d=>{
+    if(!d.roles||!d.roles.length){el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-tags"></i></div><p>لا توجد رولات مسجلة</p></div>';return}
+    const cats={general:'عام',mod:'إشراف',special:'خاص'};
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Role ID</th><th>الاسم</th><th>التصنيف</th><th>الوصف</th><th>إجراء</th></tr></thead><tbody>
+    ${d.roles.map(r=>`<tr><td><code>${r.role_id}</code></td><td><strong>${esc(r.name)}</strong></td><td><span class="badge bb">${cats[r.category]||r.category}</span></td><td style="color:var(--text2)">${esc(r.description||'—')}</td><td><button class="btn btn-danger btn-xs" onclick="delRole('${r.id}')"><i class="fas fa-trash-can"></i></button></td></tr>`).join('')}
+    </tbody></table></div>`;
+  }).catch(()=>{el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-triangle-exclamation"></i></div><p>فشل التحميل</p></div>'});
+}
+function addRole(){
+  const role_id=document.getElementById('rlId').value.trim(),name=document.getElementById('rlName').value.trim();
+  if(!role_id||!name){toast('❌ أدخل ID والاسم','error');return}
+  req('/api/roles',{method:'POST',body:{role_id,name,description:document.getElementById('rlDesc').value,category:document.getElementById('rlCat').value}})
+    .then(d=>{if(d.success){toast('✅ تمت الإضافة');['rlId','rlName','rlDesc'].forEach(id=>document.getElementById(id).value='');loadRoles()}else toast('❌ فشل','error')})
+    .catch(()=>toast('❌ فشل الاتصال','error'));
+}
+function delRole(id){
+  if(!confirm('🗑️ حذف هذا الرول؟'))return;
+  req('/api/roles/'+id,{method:'DELETE'}).then(d=>{if(d.success){toast('✅ تم الحذف');loadRoles()}}).catch(()=>toast('❌ فشل','error'));
+}
+
+/* BANS */
+function loadBans(){
+  const el=document.getElementById('bansList');
+  el.innerHTML='<div class="loading-row"><div class="spin"></div> جاري التحميل...</div>';
+  req('/api/bans').then(d=>{
+    document.getElementById('banCount').textContent=d.count||0;
+    if(!d.bans||!d.bans.length){el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-check-circle" style="color:var(--success)"></i></div><p>لا يوجد محظورون — السيرفر آمن ✅</p></div>';return}
+    const ic={ip:'<i class="fas fa-globe"></i>',device:'<i class="fas fa-laptop"></i>',canvas:'<i class="fas fa-palette"></i>',discord:'<i class="fab fa-discord"></i>'};
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>العضو</th><th>Discord ID</th><th>النوع</th><th>القيمة</th><th>تاريخ الحظر</th><th>إجراء</th></tr></thead><tbody>
+    ${d.bans.map(b=>`<tr><td><strong>${esc(b.username||'مجهول')}</strong></td><td><code>${b.discord_id||'—'}</code></td><td>${ic[b.type]||b.type||'—'}</td><td><code>${esc((b.value||'').slice(0,25))}</code></td><td style="color:var(--text2)">${(b.banned_at||'').slice(0,10)}</td><td><button class="btn btn-success btn-xs" onclick="doUnban('${b.discord_id}')"><i class="fas fa-check"></i> رفع حظر</button></td></tr>`).join('')}
+    </tbody></table></div>`;
+  }).catch(()=>{el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-triangle-exclamation"></i></div><p>فشل التحميل</p></div>'});
+}
+function doUnban(id){
+  if(!confirm('✅ رفع الحظر عن هذا العضو؟'))return;
+  req('/api/unban',{method:'POST',body:{discord_id:id}}).then(d=>{if(d.success){toast('✅ تم رفع الحظر');loadBans();loadStats()}}).catch(()=>toast('❌ فشل','error'));
+}
+
+/* LOGS */
+function loadVerifyLogs(btn){
+  const el=document.getElementById('logsContent');
+  el.innerHTML='<div class="loading-row"><div class="spin"></div> جاري التحميل...</div>';
+  if(btn){document.querySelectorAll('#logTabs .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active')}
+  req('/api/verify-logs').then(d=>{
+    if(!d.logs||!d.logs.length){el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-clock-rotate-left"></i></div><p>لا توجد نشاطات تحقق بعد</p></div>';return}
+    const icons={approved:'<i class="fas fa-check-circle" style="color:var(--success)"></i>',rejected:'<i class="fas fa-times-circle" style="color:var(--danger)"></i>',requested:'<i class="fas fa-file-signature" style="color:var(--warning)"></i>'};
+    el.innerHTML=d.logs.map(l=>`<div class="activity-item"><div class="activity-icon">${icons[l.action]||'<i class="fas fa-circle"></i>'}</div><div class="activity-content"><div class="activity-text"><strong>${esc(l.username||l.discord_id||'—')}</strong> — ${l.action==='approved'?'تم القبول':l.action==='rejected'?'تم الرفض':'طلب تحقق'}</div><div class="activity-time">${(l.timestamp||'').slice(0,16)}</div></div></div>`).join('');
+  }).catch(()=>{el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-triangle-exclamation"></i></div><p>فشل التحميل</p></div>'});
+}
+
+/* MEMBERS */
+function loadMembers(){
+  const el=document.getElementById('membersList');
+  el.innerHTML='<div class="loading-row"><div class="spin"></div> جاري التحميل...</div>';
+  req('/api/members?limit=500').then(d=>{
+    document.getElementById('membersCount').textContent=d.count||0;
+    if(!d.members||!d.members.length){el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-users"></i></div><p>لا يوجد أعضاء موثقون</p></div>';return}
+    membersData=d.members;
+    renderMembers('');
+  }).catch(()=>{el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-triangle-exclamation"></i></div><p>فشل التحميل</p></div>'});
+}
+function renderMembers(q){
+  const el=document.getElementById('membersList');
+  let filtered=membersData;
+  if(q)filtered=membersData.filter(m=>(m.username||'').toLowerCase().includes(q)||(m.discord_id||'').includes(q));
+  if(!filtered.length){el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-search"></i></div><p>لا توجد نتائج</p></div>';return}
+  el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>اسم العضو</th><th>Discord ID</th><th>IP</th><th>Device ID</th><th>تاريخ التوثيق</th></tr></thead><tbody>
+  ${filtered.map(m=>`<tr><td><strong>${esc(m.username||'مجهول')}</strong></td><td><code>${m.discord_id||'—'}</code></td><td><code>${m.ip||'—'}</code></td><td><code>${(m.device_id||'—').slice(0,16)}</code></td><td style="color:var(--text2)">${(m.verified_at||'').slice(0,10)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function filterMembers(v){renderMembers(v.trim().toLowerCase())}
+
+/* QUEUE */
+function loadQueue(){
+  const el=document.getElementById('queueList');
+  el.innerHTML='<div class="loading-row"><div class="spin"></div> جاري التحميل...</div>';
+  req('/api/queue').then(d=>{
+    if(!d.queue||!d.queue.length){el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-inbox"></i></div><p>قائمة الانتظار فارغة</p></div>';return}
+    el.innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Discord ID</th><th>الإجراء</th><th>التاريخ</th></tr></thead><tbody>
+    ${d.queue.map(q=>`<tr><td><code>${q.discord_id||'—'}</code></td><td><span class="badge bb">${q.action||'—'}</span></td><td style="color:var(--text2)">${(q.timestamp||'').slice(0,16)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+  }).catch(()=>{el.innerHTML='<div class="empty"><div class="ei"><i class="fas fa-triangle-exclamation"></i></div><p>فشل التحميل</p></div>'});
+}
+function clearQueue(){
+  if(!confirm('🗑️ مسح جميع العناصر؟'))return;
+  req('/api/queue/clear',{method:'POST'}).then(d=>{if(d.success){toast('✅ تم المسح');loadQueue()}}).catch(()=>toast('❌ فشل','error'));
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+/* AUTO-LOGIN */
+if(token){
+  document.getElementById('loginPage').classList.remove('show');
+  document.getElementById('app').classList.add('show');
+  document.getElementById('apiUrlTxt').textContent=API;
+  document.getElementById('cfgApiUrl').textContent=API;
+  loadBotInfo();
+  initApp();
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeSb()}});
 </script>
 </body>
 </html>
