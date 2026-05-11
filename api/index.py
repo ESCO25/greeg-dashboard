@@ -39,6 +39,22 @@ def require_auth(f):
     wrapper.__name__ = f.__name__
     return wrapper
 
+def queue_bot_command(command_type, payload):
+    """
+    يكتب أمر في collection 'bot_commands'.
+    البوت يقرأ هذا الـ collection ويُنفّذ الأوامر ثم يحذفها.
+    """
+    d = get_db()
+    doc = {
+        "type": command_type,
+        "guild_id": GUILD_ID,
+        "payload": payload,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    result = d["bot_commands"].insert_one(doc)
+    return str(result.inserted_id)
+
 @app.route("/")
 def index():
     return jsonify({"status": "ok", "name": "Greeg Bot Dashboard API"})
@@ -339,14 +355,35 @@ def get_tickets():
 @app.route("/api/tickets/setup", methods=["POST"])
 @require_auth
 def tickets_setup():
+    """
+    يحفظ الإعدادات في MongoDB ويضع أمر في bot_commands
+    حتى يقرأه البوت ويرسل رسالة التيكت في القناة المحددة.
+    """
     d = get_db()
     data = request.get_json() or {}
+
+    channel_id = data.get("channel_id", "")
+    if not channel_id:
+        return jsonify({"error": "channel_id required"}), 400
+
+    # حفظ الإعدادات
     d["ticket_settings"].update_one(
         {"guild_id": GUILD_ID},
-        {"$set": data},
+        {"$set": {**data, "guild_id": GUILD_ID}},
         upsert=True
     )
-    return jsonify({"success": True})
+
+    # إرسال أمر للبوت لإنشاء رسالة التيكت
+    cmd_id = queue_bot_command("send_ticket_panel", {
+        "channel_id": str(channel_id),
+        "message": data.get("message", "افتح تيكت للحصول على المساعدة"),
+        "color": data.get("color", 0x5865f2),
+        "support_role": data.get("support_role", ""),
+        "category_id": data.get("category_id", ""),
+        "categories": data.get("categories", []),
+    })
+
+    return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
 
 @app.route("/api/tickets/close", methods=["POST"])
 @require_auth
@@ -362,6 +399,8 @@ def close_ticket():
             {"$set": {"status": "closed", "closed_at": datetime.now(timezone.utc).isoformat()}}
         )
         if result.matched_count:
+            # أمر للبوت بإغلاق القناة إن وجدت
+            queue_bot_command("close_ticket", {"ticket_id": ticket_id})
             return jsonify({"success": True})
         return jsonify({"error": "Ticket not found"}), 404
     except Exception as e:
@@ -409,32 +448,118 @@ def mod_action(action):
         })
     return jsonify({"success": True})
 
-# ── Discord-bot-required endpoints (placeholder) ────────────────
+# ── Discord Actions via bot_commands queue ──────────────────────
 
 @app.route("/api/send-message", methods=["POST"])
 @require_auth
 def send_message():
-    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+    """
+    تضع أمر إرسال رسالة في قائمة الانتظار.
+    البوت يقرأ 'bot_commands' ويرسل الرسالة.
+    """
+    data = request.get_json() or {}
+    channel_id = data.get("channel_id", "")
+    content = data.get("content", "")
+    if not channel_id or not content:
+        return jsonify({"error": "channel_id و content مطلوبان"}), 400
+
+    cmd_id = queue_bot_command("send_message", {
+        "channel_id": str(channel_id),
+        "content": content,
+    })
+    return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
 
 @app.route("/api/send-embed", methods=["POST"])
 @require_auth
 def send_embed():
-    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+    """
+    تضع أمر إرسال embed في قائمة الانتظار.
+    البوت يقرأ 'bot_commands' ويرسل الـ embed.
+    """
+    data = request.get_json() or {}
+    channel_id = data.get("channel_id", "")
+    if not channel_id:
+        return jsonify({"error": "channel_id مطلوب"}), 400
+
+    cmd_id = queue_bot_command("send_embed", {
+        "channel_id": str(channel_id),
+        "title": data.get("title", ""),
+        "description": data.get("description", ""),
+        "color": data.get("color", 0x5865f2),
+        "footer": data.get("footer", ""),
+        "image": data.get("image", ""),
+        "thumbnail": data.get("thumbnail", ""),
+        "fields": data.get("fields", []),
+    })
+    return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
 
 @app.route("/api/delete-messages", methods=["POST"])
 @require_auth
 def delete_messages():
-    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+    data = request.get_json() or {}
+    channel_id = data.get("channel_id", "")
+    amount = int(data.get("amount", 1))
+    if not channel_id:
+        return jsonify({"error": "channel_id مطلوب"}), 400
+
+    cmd_id = queue_bot_command("delete_messages", {
+        "channel_id": str(channel_id),
+        "amount": min(amount, 100),
+    })
+    return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
 
 @app.route("/api/roles/add", methods=["POST"])
 @require_auth
 def roles_add():
-    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+    data = request.get_json() or {}
+    user_id = data.get("user_id", "")
+    role_id = data.get("role_id", "")
+    if not user_id or not role_id:
+        return jsonify({"error": "user_id و role_id مطلوبان"}), 400
+
+    cmd_id = queue_bot_command("add_role", {
+        "user_id": str(user_id),
+        "role_id": str(role_id),
+    })
+    return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
 
 @app.route("/api/roles/remove", methods=["POST"])
 @require_auth
 def roles_remove():
-    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+    data = request.get_json() or {}
+    user_id = data.get("user_id", "")
+    role_id = data.get("role_id", "")
+    if not user_id or not role_id:
+        return jsonify({"error": "user_id و role_id مطلوبان"}), 400
+
+    cmd_id = queue_bot_command("remove_role", {
+        "user_id": str(user_id),
+        "role_id": str(role_id),
+    })
+    return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
+
+# ── Bot commands status ─────────────────────────────────────────
+
+@app.route("/api/bot-commands")
+@require_auth
+def get_bot_commands():
+    """مراقبة حالة أوامر البوت المعلّقة"""
+    d = get_db()
+    limit = min(int(request.args.get("limit", 20)), 100)
+    cmds = list(d["bot_commands"].find(
+        {"guild_id": GUILD_ID},
+        {"_id": 1, "type": 1, "status": 1, "created_at": 1, "error": 1}
+    ).sort("created_at", -1).limit(limit))
+    result = []
+    for c in cmds:
+        result.append({
+            "id": str(c["_id"]),
+            "type": c.get("type"),
+            "status": c.get("status", "pending"),
+            "created_at": c.get("created_at", "")[:19],
+            "error": c.get("error", ""),
+        })
+    return jsonify({"commands": result})
 
 # ── Bot roles (stored in MongoDB) ───────────────────────────────
 
