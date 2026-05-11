@@ -6,234 +6,182 @@
 <title>Greeg Bot — لوحة التحكم</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0d0d14;
-  --bg2: #11111c;
-  --sidebar: #0f0f1a;
-  --card: #161625;
-  --card2: #1c1c2e;
-  --primary: #5865f2;
-  --primary-dim: rgba(88,101,242,0.15);
-  --success: #3ba55c;
-  --success-dim: rgba(59,165,92,0.15);
-  --danger: #ed4245;
-  --danger-dim: rgba(237,66,69,0.15);
-  --warning: #faa61a;
-  --warning-dim: rgba(250,166,26,0.15);
-  --purple: #9b59b6;
-  --purple-dim: rgba(155,89,182,0.15);
-  --teal: #1abc9c;
-  --teal-dim: rgba(26,188,156,0.15);
-  --text: #e3e3f0;
-  --text2: #8888aa;
-  --text3: #45455a;
-  --border: #1e1e32;
-  --border2: #252540;
-  --radius: 12px;
-  --radius-sm: 8px;
-  --sidebar-w: 260px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-::-webkit-scrollbar{width:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px;}
-.login-wrap{display:none;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);position:relative;overflow:hidden;}
-.login-wrap::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(88,101,242,.1) 0%,transparent 65%);top:-150px;right:-150px;pointer-events:none;}
-.login-wrap.show{display:flex;}
-.login-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:50px 44px;width:100%;max-width:420px;text-align:center;position:relative;z-index:1;box-shadow:0 30px 80px rgba(0,0,0,.5);}
-.login-logo{width:74px;height:74px;background:linear-gradient(135deg,#5865f2,#7289da);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 20px;box-shadow:0 8px 30px rgba(88,101,242,.4);}
-.login-box h1{font-size:26px;font-weight:800;margin-bottom:6px;}
-.login-box p{color:var(--text2);font-size:14px;margin-bottom:30px;}
-.login-input{width:100%;padding:14px 18px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-family:'Cairo',sans-serif;outline:none;transition:border-color .2s;margin-bottom:14px;direction:ltr;text-align:center;letter-spacing:3px;}
-.login-input:focus{border-color:var(--primary);}
-.login-input::placeholder{letter-spacing:0;color:var(--text3);}
-.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#5865f2,#7289da);border:none;border-radius:var(--radius-sm);color:#fff;font-size:16px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;transition:opacity .2s,transform .1s;box-shadow:0 4px 20px rgba(88,101,242,.4);}
-.login-btn:hover{opacity:.9;transform:translateY(-1px);}
-.login-err{color:var(--danger);font-size:13px;margin-top:12px;display:none;}
-.app{display:none;}
-.app.show{display:flex;min-height:100vh;}
-.sidebar{width:var(--sidebar-w);background:var(--sidebar);border-left:1px solid var(--border);height:100vh;position:fixed;right:0;top:0;display:flex;flex-direction:column;overflow-y:auto;z-index:200;transition:transform .3s;}
-.sb-head{padding:18px 16px;border-bottom:1px solid var(--border);}
-.bot-card{display:flex;align-items:center;gap:12px;}
-.bot-av{width:44px;height:44px;background:linear-gradient(135deg,#5865f2,#7289da);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.bot-name{font-size:15px;font-weight:800;}
-.bot-tag{font-size:11px;color:var(--text2);margin-top:2px;}
-.online{display:inline-block;width:7px;height:7px;background:var(--success);border-radius:50%;box-shadow:0 0 6px var(--success);margin-right:4px;}
-.sb-sec{padding:18px 10px 6px;}
-.sb-sec-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:5px;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;transition:all .15s;font-size:14px;font-weight:600;position:relative;user-select:none;margin-bottom:2px;}
-.nav-item:hover{background:var(--primary-dim);color:var(--text);}
-.nav-item.active{background:var(--primary-dim);color:var(--primary);}
-.nav-item.active::before{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);width:3px;height:55%;background:var(--primary);border-radius:0 3px 3px 0;}
-.nav-ico{width:20px;text-align:center;font-size:16px;flex-shrink:0;}
-.sb-foot{margin-top:auto;padding:12px 10px;border-top:1px solid var(--border);}
-.logout-row{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-sm);color:var(--danger);cursor:pointer;font-size:14px;font-weight:600;transition:background .15s;}
-.logout-row:hover{background:var(--danger-dim);}
-.main{margin-right:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column;}
-.topbar{padding:14px 28px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.topbar h2{font-size:17px;font-weight:800;}
-.topbar-r{display:flex;align-items:center;gap:10px;}
-.guild-pill{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text2);}
-.mob-btn{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;}
-.content{padding:26px 28px;flex:1;}
-.panel{display:none;}
-.panel.active{display:block;}
-.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
-.ph-t{font-size:20px;font-weight:800;}
-.ph-sub{color:var(--text2);font-size:13px;margin-top:3px;}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:13px;margin-bottom:26px;}
-.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:transform .2s,border-color .2s;overflow:hidden;position:relative;}
-.sc:hover{transform:translateY(-2px);border-color:var(--border2);}
-.sc.blue{border-top:2px solid var(--primary);}
-.sc.green{border-top:2px solid var(--success);}
-.sc.red{border-top:2px solid var(--danger);}
-.sc.yellow{border-top:2px solid var(--warning);}
-.sc.purple{border-top:2px solid var(--purple);}
-.sc.teal{border-top:2px solid var(--teal);}
-.sc-ico{font-size:20px;margin-bottom:10px;}
-.sc-num{font-size:28px;font-weight:800;line-height:1;}
-.sc-lbl{color:var(--text2);font-size:12px;margin-top:5px;}
-.sc-trend{font-size:11px;margin-top:4px;}
-.sc-trend.up{color:var(--success);}
-.sc-trend.down{color:var(--danger);}
-.box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
-.box-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);}
-.box-t{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
-.fg{margin-bottom:14px;}
-.fg label{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
-.fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;font-family:'Cairo',sans-serif;outline:none;transition:border-color .2s;}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);}
-.fg textarea{resize:vertical;min-height:85px;}
-.fg select option{background:var(--card);}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);border:none;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;}
-.btn:hover{opacity:.85;transform:translateY(-1px);}
-.btn:active{transform:translateY(0);}
-.btn-primary{background:var(--primary);color:#fff;}
-.btn-success{background:var(--success);color:#fff;}
-.btn-danger{background:var(--danger);color:#fff;}
-.btn-warning{background:var(--warning);color:#fff;}
-.btn-purple{background:var(--purple);color:#fff;}
-.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text);}
-.btn-outline:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
-.btn-sm{padding:6px 13px;font-size:12px;}
-.ico-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);background:var(--card2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .15s;font-size:14px;}
-.ico-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim);}
-.ico-btn.del:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-dim);}
-.ico-btn.warn:hover{border-color:var(--warning);color:var(--warning);background:var(--warning-dim);}
-.tog-wrap{display:flex;align-items:center;gap:9px;}
-.tog{position:relative;width:40px;height:22px;flex-shrink:0;}
-.tog input{opacity:0;width:0;height:0;}
-.tog-sl{position:absolute;inset:0;background:var(--border2);border-radius:22px;cursor:pointer;transition:.2s;}
-.tog-sl::before{content:'';position:absolute;width:16px;height:16px;right:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3);}
-.tog input:checked+.tog-sl{background:var(--primary);}
-.tog input:checked+.tog-sl::before{transform:translateX(-18px);}
-.tog-lbl{font-size:13px;color:var(--text2);}
-.t-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
-th{text-align:right;padding:9px 13px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
-td{text-align:right;padding:11px 13px;font-size:13px;border-bottom:1px solid var(--border);}
-tr:hover td{background:rgba(255,255,255,.015);}
-tr:last-child td{border-bottom:none;}
-code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;font-size:11px;font-family:monospace;color:var(--text2);}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
-.bg{background:var(--success-dim);color:var(--success);}
-.br{background:var(--danger-dim);color:var(--danger);}
-.bb{background:var(--primary-dim);color:var(--primary);}
-.by{background:var(--warning-dim);color:var(--warning);}
-.bp{background:var(--purple-dim);color:var(--purple);}
-.bt{background:var(--teal-dim);color:var(--teal);}
-.rc{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;margin-bottom:9px;display:flex;align-items:center;gap:12px;transition:border-color .2s;}
-.rc:hover{border-color:var(--border2);}
-.rc-info{flex:1;min-width:0;}
-.rc-tr{font-weight:700;color:var(--primary);font-size:14px;}
-.rc-re{color:var(--text2);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rc-meta{display:flex;align-items:center;gap:7px;margin-top:6px;flex-wrap:wrap;}
-.rc-act{display:flex;align-items:center;gap:7px;flex-shrink:0;}
-.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:16px;}
-.modal-ov.show{display:flex;}
-.modal{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:26px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:min .2s ease;}
-.modal.wide{max-width:720px;}
-@keyframes min{from{transform:scale(.95) translateY(8px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
-.modal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
-.modal-t{font-size:16px;font-weight:800;}
-.modal-x{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px;border-radius:6px;transition:color .15s;}
-.modal-x:hover{color:var(--text);}
-.modal-f{display:flex;gap:9px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap;}
-.sr{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);gap:11px;}
-.sr:last-child{border-bottom:none;}
-.sr-ico{font-size:17px;width:26px;text-align:center;}
-.sr-inf{flex:1;}
-.sr-lbl{font-size:13px;font-weight:600;}
-.sr-sub{font-size:11px;color:var(--text2);margin-top:1px;}
-.qb{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;transition:all .15s;width:100%;text-align:right;margin-bottom:7px;}
-.qb:hover{border-color:var(--primary);background:var(--primary-dim);color:var(--primary);}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);padding:11px 20px;border-radius:9px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.4);}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.toast.success{background:var(--success);color:#fff;}
-.toast.error{background:var(--danger);color:#fff;}
-.toast.info{background:var(--primary);color:#fff;}
-.empty{text-align:center;padding:46px 20px;color:var(--text2);}
-.empty-i{font-size:42px;margin-bottom:10px;opacity:.45;}
-.sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;}
-.embed-preview{border-radius:8px;padding:16px;background:var(--card2);border:1px solid var(--border2);border-right:4px solid var(--primary);margin-top:14px;}
-.embed-preview-title{font-weight:800;font-size:15px;margin-bottom:6px;color:#fff;}
-.embed-preview-desc{font-size:13px;color:var(--text2);line-height:1.6;white-space:pre-wrap;}
-.embed-preview-footer{font-size:11px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-.embed-preview-image{width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-top:10px;}
-.color-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0;}
-.color-dot:hover,.color-dot.active{border-color:#fff;transform:scale(1.15);}
-.embed-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s;}
-.embed-card:hover{border-color:var(--border2);}
-.embed-card-bar{width:4px;height:40px;border-radius:4px;flex-shrink:0;}
-.embed-card-info{flex:1;}
-.embed-card-name{font-weight:700;font-size:14px;}
-.embed-card-sub{font-size:12px;color:var(--text2);margin-top:2px;}
-.ticket-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
-.ticket-status{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.ticket-status.open{background:var(--success);box-shadow:0 0 6px var(--success);}
-.ticket-status.closed{background:var(--text3);}
-.ch-select{position:relative;}
-.ch-select select{padding-right:36px;}
-.ch-select::before{content:'📢';position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:13px;}
-.member-search-wrap{position:relative;margin-bottom:14px;}
-.member-search-wrap input{padding-right:40px;}
-.member-search-wrap::before{content:'🔍';position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:13px;}
-.chart-bar-wrap{margin-bottom:8px;}
-.chart-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;}
-.chart-bar-track{background:var(--bg2);border-radius:20px;height:8px;overflow:hidden;}
-.chart-bar-fill{height:100%;border-radius:20px;transition:width .8s ease;}
-.stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
-.stat-row:last-child{border-bottom:none;}
-.stat-big{font-size:32px;font-weight:800;line-height:1;}
-.stat-label{font-size:12px;color:var(--text2);margin-top:4px;}
-.role-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;margin:2px;background:var(--card2);border:1px solid var(--border2);}
-.role-tag .role-dot{width:8px;height:8px;border-radius:50%;}
-.mod-action{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.divider{height:1px;background:var(--border);margin:16px 0;}
-.cat-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
-.cat-emoji{font-size:22px;width:36px;text-align:center;}
-.cat-info{flex:1;}
-.cat-name{font-weight:700;font-size:14px;}
-.cat-sub{font-size:12px;color:var(--text2);}
-.loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-left:6px;}
+:root{--bg:#0d0d14;--bg2:#11111c;--sidebar:#0f0f1a;--card:#161625;--card2:#1c1c2e;--primary:#5865f2;--primary-dim:rgba(88,101,242,0.15);--success:#3ba55c;--success-dim:rgba(59,165,92,0.15);--danger:#ed4245;--danger-dim:rgba(237,66,69,0.15);--warning:#faa61a;--warning-dim:rgba(250,166,26,0.15);--purple:#9b59b6;--purple-dim:rgba(155,89,182,0.15);--teal:#1abc9c;--teal-dim:rgba(26,188,156,0.15);--text:#e3e3f0;--text2:#8888aa;--text3:#45455a;--border:#1e1e32;--border2:#252540;--radius:12px;--radius-sm:8px;--sidebar-w:260px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+.login-wrap{display:none;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);position:relative;overflow:hidden}
+.login-wrap::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(88,101,242,.1) 0%,transparent 65%);top:-150px;right:-150px;pointer-events:none}
+.login-wrap.show{display:flex}
+.login-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:50px 44px;width:100%;max-width:420px;text-align:center;position:relative;z-index:1;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.login-logo{width:74px;height:74px;background:linear-gradient(135deg,#5865f2,#7289da);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 20px;box-shadow:0 8px 30px rgba(88,101,242,.4)}
+.login-box h1{font-size:26px;font-weight:800;margin-bottom:6px}
+.login-box p{color:var(--text2);font-size:14px;margin-bottom:30px}
+.login-input{width:100%;padding:14px 18px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:15px;font-family:'Cairo',sans-serif;outline:none;transition:border-color .2s;margin-bottom:14px;direction:ltr;text-align:center;letter-spacing:3px}
+.login-input:focus{border-color:var(--primary)}
+.login-input::placeholder{letter-spacing:0;color:var(--text3)}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#5865f2,#7289da);border:none;border-radius:var(--radius-sm);color:#fff;font-size:16px;font-weight:700;font-family:'Cairo',sans-serif;cursor:pointer;transition:opacity .2s,transform .1s;box-shadow:0 4px 20px rgba(88,101,242,.4)}
+.login-btn:hover{opacity:.9;transform:translateY(-1px)}
+.login-err{color:var(--danger);font-size:13px;margin-top:12px;display:none}
+.app{display:none}
+.app.show{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:var(--sidebar);border-left:1px solid var(--border);height:100vh;position:fixed;right:0;top:0;display:flex;flex-direction:column;overflow-y:auto;z-index:200;transition:transform .3s}
+.sb-head{padding:18px 16px;border-bottom:1px solid var(--border)}
+.bot-card{display:flex;align-items:center;gap:12px}
+.bot-av{width:44px;height:44px;background:linear-gradient(135deg,#5865f2,#7289da);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.bot-name{font-size:15px;font-weight:800}
+.bot-tag{font-size:11px;color:var(--text2);margin-top:2px}
+.online{display:inline-block;width:7px;height:7px;background:var(--success);border-radius:50%;box-shadow:0 0 6px var(--success);margin-left:4px}
+.sb-sec{padding:18px 10px 6px}
+.sb-sec-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;transition:all .15s;font-size:14px;font-weight:600;position:relative;user-select:none;margin-bottom:2px}
+.nav-item:hover{background:var(--primary-dim);color:var(--text)}
+.nav-item.active{background:var(--primary-dim);color:var(--primary)}
+.nav-item.active::before{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);width:3px;height:55%;background:var(--primary);border-radius:0 3px 3px 0}
+.nav-ico{width:20px;text-align:center;font-size:16px;flex-shrink:0}
+.sb-foot{margin-top:auto;padding:12px 10px;border-top:1px solid var(--border)}
+.logout-row{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-sm);color:var(--danger);cursor:pointer;font-size:14px;font-weight:600;transition:background .15s}
+.logout-row:hover{background:var(--danger-dim)}
+.main{margin-right:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{padding:14px 28px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar h2{font-size:17px;font-weight:800}
+.topbar-r{display:flex;align-items:center;gap:10px}
+.guild-pill{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border2);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text2)}
+.mob-btn{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer}
+.content{padding:26px 28px;flex:1}
+.panel{display:none}
+.panel.active{display:block}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
+.ph-t{font-size:20px;font-weight:800}
+.ph-sub{color:var(--text2);font-size:13px;margin-top:3px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:13px;margin-bottom:26px}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:transform .2s,border-color .2s;overflow:hidden;position:relative}
+.sc:hover{transform:translateY(-2px);border-color:var(--border2)}
+.sc.blue{border-top:2px solid var(--primary)}
+.sc.green{border-top:2px solid var(--success)}
+.sc.red{border-top:2px solid var(--danger)}
+.sc.yellow{border-top:2px solid var(--warning)}
+.sc.purple{border-top:2px solid var(--purple)}
+.sc.teal{border-top:2px solid var(--teal)}
+.sc-ico{font-size:20px;margin-bottom:10px}
+.sc-num{font-size:28px;font-weight:800;line-height:1}
+.sc-lbl{color:var(--text2);font-size:12px;margin-top:5px}
+.box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.box-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.box-t{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.fg{margin-bottom:14px}
+.fg label{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-size:14px;font-family:'Cairo',sans-serif;outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary)}
+.fg textarea{resize:vertical;min-height:85px}
+.fg select option{background:var(--card)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:var(--radius-sm);border:none;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:hover{opacity:.85;transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-outline{background:transparent;border:1.5px solid var(--border2);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.ico-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);background:var(--card2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .15s;font-size:14px}
+.ico-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
+.ico-btn.del:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-dim)}
+.tog{position:relative;width:40px;height:22px;flex-shrink:0;display:inline-block}
+.tog input{opacity:0;width:0;height:0}
+.tog-sl{position:absolute;inset:0;background:var(--border2);border-radius:22px;cursor:pointer;transition:.2s}
+.tog-sl::before{content:'';position:absolute;width:16px;height:16px;right:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tog input:checked+.tog-sl{background:var(--primary)}
+.tog input:checked+.tog-sl::before{transform:translateX(-18px)}
+.tog-wrap{display:flex;align-items:center;gap:9px}
+.tog-lbl{font-size:13px;color:var(--text2)}
+.t-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:right;padding:9px 13px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{text-align:right;padding:11px 13px;font-size:13px;border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(255,255,255,.015)}
+tr:last-child td{border-bottom:none}
+code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;padding:2px 6px;font-size:11px;font-family:monospace;color:var(--text2)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.bg{background:var(--success-dim);color:var(--success)}
+.br{background:var(--danger-dim);color:var(--danger)}
+.bb{background:var(--primary-dim);color:var(--primary)}
+.by{background:var(--warning-dim);color:var(--warning)}
+.bp{background:var(--purple-dim);color:var(--purple)}
+.bt{background:var(--teal-dim);color:var(--teal)}
+.rc{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 16px;margin-bottom:9px;display:flex;align-items:center;gap:12px}
+.rc-info{flex:1;min-width:0}
+.rc-tr{font-weight:700;color:var(--primary);font-size:14px}
+.rc-re{color:var(--text2);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc-meta{display:flex;align-items:center;gap:7px;margin-top:6px;flex-wrap:wrap}
+.rc-act{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:16px}
+.modal-ov.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:26px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6);animation:min .2s ease}
+.modal.wide{max-width:720px}
+@keyframes min{from{transform:scale(.95) translateY(8px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.modal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-t{font-size:16px;font-weight:800}
+.modal-x{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px;border-radius:6px}
+.modal-x:hover{color:var(--text)}
+.modal-f{display:flex;gap:9px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+.sr{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);gap:11px}
+.sr:last-child{border-bottom:none}
+.sr-ico{font-size:17px;width:26px;text-align:center}
+.sr-inf{flex:1}
+.sr-lbl{font-size:13px;font-weight:600}
+.sr-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.qb{display:flex;align-items:center;gap:11px;padding:12px 14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);cursor:pointer;font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;transition:all .15s;width:100%;text-align:right;margin-bottom:7px}
+.qb:hover{border-color:var(--primary);background:var(--primary-dim);color:var(--primary)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(8px);padding:11px 20px;border-radius:9px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--success);color:#fff}
+.toast.error{background:var(--danger);color:#fff}
+.toast.info{background:var(--primary);color:#fff}
+.empty{text-align:center;padding:46px 20px;color:var(--text2)}
+.empty-i{font-size:42px;margin-bottom:10px;opacity:.45}
+.sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}
+.embed-preview{border-radius:8px;padding:16px;background:var(--card2);border:1px solid var(--border2);border-right:4px solid var(--primary);margin-top:14px}
+.embed-preview-title{font-weight:800;font-size:15px;margin-bottom:6px;color:#fff}
+.embed-preview-desc{font-size:13px;color:var(--text2);line-height:1.6;white-space:pre-wrap}
+.embed-preview-footer{font-size:11px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.embed-preview-image{width:100%;max-height:200px;object-fit:cover;border-radius:6px;margin-top:10px}
+.color-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;flex-shrink:0}
+.color-dot:hover,.color-dot.active{border-color:#fff;transform:scale(1.15)}
+.embed-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.embed-card-bar{width:4px;height:40px;border-radius:4px;flex-shrink:0}
+.embed-card-info{flex:1}
+.embed-card-name{font-weight:700;font-size:14px}
+.embed-card-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.chart-bar-wrap{margin-bottom:8px}
+.chart-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px}
+.chart-bar-track{background:var(--bg2);border-radius:20px;height:8px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:20px;transition:width .8s ease}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.stat-big{font-size:32px;font-weight:800;line-height:1}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+.role-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;margin:2px;background:var(--card2);border:1px solid var(--border2)}
+.role-tag .role-dot{width:8px;height:8px;border-radius:50%}
+.mod-action{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.cat-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.cat-emoji{font-size:22px;width:36px;text-align:center}
+.cat-info{flex:1}
+.cat-name{font-weight:700;font-size:14px}
+.cat-sub{font-size:12px;color:var(--text2)}
+.loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-left:6px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:820px){
-  .sidebar{transform:translateX(100%);}
-  .sidebar.open{transform:translateX(0);}
-  .sb-ov.show{display:block;}
-  .main{margin-right:0;}
-  .mob-btn{display:block;}
-  .content{padding:16px 14px;}
-  .g2,.r2,.r3{grid-template-columns:1fr;}
-  .stats-grid{grid-template-columns:repeat(2,1fr);}
-  .topbar{padding:11px 14px;}
-}
+@media(max-width:820px){.sidebar{transform:translateX(100%)}.sidebar.open{transform:translateX(0)}.sb-ov.show{display:block}.main{margin-right:0}.mob-btn{display:block}.content{padding:16px 14px}.g2,.r2,.r3{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(2,1fr)}.topbar{padding:11px 14px}}
 </style>
 </head>
 <body>
@@ -252,23 +200,13 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
 <div class="app" id="appWrap">
   <div class="sb-ov" id="sbOv" onclick="closeSb()"></div>
   <nav class="sidebar" id="sidebar">
-    <div class="sb-head">
-      <div class="bot-card">
-        <div class="bot-av">🛡️</div>
-        <div>
-          <div class="bot-name"><span class="online"></span>Greeg</div>
-          <div class="bot-tag">لوحة التحكم</div>
-        </div>
-      </div>
-    </div>
-    <div class="sb-sec">
-      <div class="sb-sec-label">عام</div>
+    <div class="sb-head"><div class="bot-card"><div class="bot-av">🛡️</div><div><div class="bot-name"><span class="online"></span>Greeg</div><div class="bot-tag">لوحة التحكم</div></div></div></div>
+    <div class="sb-sec"><div class="sb-sec-label">عام</div>
       <div class="nav-item active" onclick="go('overview',this)"><span class="nav-ico">📊</span>نظرة عامة</div>
       <div class="nav-item" onclick="go('config',this)"><span class="nav-ico">⚙️</span>إعدادات البوت</div>
       <div class="nav-item" onclick="go('stats',this)"><span class="nav-ico">📈</span>إحصائيات متقدمة</div>
     </div>
-    <div class="sb-sec">
-      <div class="sb-sec-label">الميزات</div>
+    <div class="sb-sec"><div class="sb-sec-label">الميزات</div>
       <div class="nav-item" onclick="go('verify',this)"><span class="nav-ico">🛡️</span>التحقق</div>
       <div class="nav-item" onclick="go('autoreply',this)"><span class="nav-ico">🤖</span>الرد التلقائي</div>
       <div class="nav-item" onclick="go('welcome',this)"><span class="nav-ico">👋</span>الترحيب والمغادرة</div>
@@ -276,31 +214,27 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
       <div class="nav-item" onclick="go('tickets',this)"><span class="nav-ico">🎫</span>نظام التيكت</div>
       <div class="nav-item" onclick="go('messages',this)"><span class="nav-ico">📢</span>إرسال رسائل</div>
     </div>
-    <div class="sb-sec">
-      <div class="sb-sec-label">الإشراف</div>
+    <div class="sb-sec"><div class="sb-sec-label">الإشراف</div>
       <div class="nav-item" onclick="go('moderation',this)"><span class="nav-ico">🔨</span>الإشراف</div>
       <div class="nav-item" onclick="go('roles',this)"><span class="nav-ico">🎭</span>إدارة الرولات</div>
       <div class="nav-item" onclick="go('bans',this)"><span class="nav-ico">🚫</span>المحظورون</div>
       <div class="nav-item" onclick="go('members',this)"><span class="nav-ico">👥</span>الأعضاء</div>
       <div class="nav-item" onclick="go('queue',this)"><span class="nav-ico">⏳</span>قائمة الانتظار</div>
     </div>
-    <div class="sb-foot">
-      <div class="logout-row" onclick="doLogout()"><span class="nav-ico">🚪</span>تسجيل الخروج</div>
-    </div>
+    <div class="sb-foot"><div class="logout-row" onclick="doLogout()"><span class="nav-ico">🚪</span>تسجيل الخروج</div></div>
   </nav>
 
   <div class="main">
     <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px;">
+      <div style="display:flex;align-items:center;gap:12px">
         <button class="mob-btn" onclick="openSb()">☰</button>
         <h2 id="pageTitle">نظرة عامة</h2>
       </div>
       <div class="topbar-r">
         <div class="guild-pill">🆔 <span id="guildDisp">—</span></div>
-        <button class="btn btn-outline btn-sm" onclick="refreshChannels()" title="تحديث القنوات">🔄 تحديث</button>
+        <button class="btn btn-outline btn-sm" onclick="refreshChannels()">🔄 تحديث</button>
       </div>
     </div>
-
     <div class="content">
 
       <div class="panel active" id="panel-overview">
@@ -315,8 +249,7 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
           <div class="sc teal"><div class="sc-ico">✨</div><div class="sc-num" id="s-emb">—</div><div class="sc-lbl">رسائل إيمبد</div></div>
         </div>
         <div class="g2">
-          <div class="box">
-            <div class="box-h"><div class="box-t"><span>⚡</span> إجراءات سريعة</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">⚡ إجراءات سريعة</div></div>
             <button class="qb" onclick="go('embeds',null)">✨ إنشاء رسالة إيمبد</button>
             <button class="qb" onclick="go('messages',null)">📢 إرسال رسالة لقناة</button>
             <button class="qb" onclick="go('moderation',null)">🔨 الإشراف (كيك/باين)</button>
@@ -324,11 +257,8 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
             <button class="qb" onclick="go('roles',null)">🎭 إدارة الرولات</button>
             <button class="qb" onclick="loadAll()">🔄 تحديث الإحصائيات</button>
           </div>
-          <div class="box">
-            <div class="box-h"><div class="box-t"><span>📡</span> حالة الاتصال</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">📡 حالة الاتصال</div></div>
             <div class="sr"><div class="sr-ico">🟢</div><div class="sr-inf"><div class="sr-lbl">API</div><div class="sr-sub">متصل وجاهز</div></div><span class="badge bg">نشط</span></div>
-            <div class="sr"><div class="sr-ico">🟢</div><div class="sr-inf"><div class="sr-lbl">MongoDB</div><div class="sr-sub">قاعدة البيانات متصلة</div></div><span class="badge bg">نشط</span></div>
-            <div class="sr"><div class="sr-ico">🟢</div><div class="sr-inf"><div class="sr-lbl">Vercel</div><div class="sr-sub">Serverless نشط</div></div><span class="badge bg">نشط</span></div>
             <div class="sr"><div class="sr-ico" id="botStatusIco">🟡</div><div class="sr-inf"><div class="sr-lbl">البوت</div><div class="sr-sub" id="botStatusSub">جاري التحقق...</div></div><span class="badge by" id="botStatusBadge">...</span></div>
           </div>
         </div>
@@ -337,23 +267,14 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
       <div class="panel" id="panel-config">
         <div class="ph"><div><div class="ph-t">⚙️ إعدادات البوت</div><div class="ph-sub">الإعدادات العامة للبوت</div></div></div>
         <div class="g2">
-          <div class="box">
-            <div class="box-h"><div class="box-t">🔧 الإعدادات الأساسية</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">🔧 الإعدادات الأساسية</div></div>
             <div class="fg"><label>! البادئة Prefix</label><input type="text" id="cfgPrefix" value="!" maxlength="5"></div>
             <div class="fg"><label>🎮 حالة البوت Status</label><input type="text" id="cfgStatus" placeholder="اشوفكم بصمة😶‍🌫️"></div>
-            <div class="fg"><label>📋 قناة السجلات</label>
-              <div class="ch-select"><select id="cfgLog"><option value="">كل القنوات / لا شيء</option></select></div>
-            </div>
+            <div class="fg"><label>📋 قناة السجلات</label><div class="ch-select"><select id="cfgLog"><option value="">كل القنوات / لا شيء</option></select></div></div>
             <button class="btn btn-primary" onclick="saveConfig()">💾 حفظ الإعدادات</button>
           </div>
-          <div class="box">
-            <div class="box-h">
-              <div class="box-t">👋 رسالة الترحيب</div>
-              <label class="tog-wrap" style="cursor:pointer"><div class="tog"><input type="checkbox" id="cfgWelcomeOn" checked><div class="tog-sl"></div></div><span class="tog-lbl">مفعّل</span></label>
-            </div>
-            <div class="fg"><label>📢 قناة الترحيب</label>
-              <div class="ch-select"><select id="cfgWelcomeCh"><option value="">اختر قناة</option></select></div>
-            </div>
+          <div class="box"><div class="box-h"><div class="box-t">👋 رسالة الترحيب</div><label class="tog-wrap" style="cursor:pointer"><div class="tog"><input type="checkbox" id="cfgWelcomeOn" checked><div class="tog-sl"></div></div><span class="tog-lbl">مفعّل</span></label></div>
+            <div class="fg"><label>📢 قناة الترحيب</label><div class="ch-select"><select id="cfgWelcomeCh"><option value="">اختر قناة</option></select></div></div>
             <div class="fg"><label>💬 رسالة الترحيب</label><textarea id="cfgWelcomeMsg" placeholder="🎉 مرحباً بك {member} في السيرفر!"></textarea></div>
             <button class="btn btn-primary" onclick="saveConfig()">💾 حفظ</button>
           </div>
@@ -361,47 +282,22 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
       </div>
 
       <div class="panel" id="panel-stats">
-        <div class="ph"><div><div class="ph-t">📈 إحصائيات متقدمة</div><div class="ph-sub">تحليل شامل لنشاط السيرفر والبوت</div></div>
-          <button class="btn btn-outline" onclick="loadAdvancedStats()">🔄 تحديث</button>
-        </div>
-        <div class="g3" style="margin-bottom:16px;">
-          <div class="box" style="text-align:center;">
-            <div class="stat-big" id="adv-total-req" style="color:var(--primary)">—</div>
-            <div class="stat-label">إجمالي طلبات التحقق</div>
-          </div>
-          <div class="box" style="text-align:center;">
-            <div class="stat-big" id="adv-rate" style="color:var(--success)">—%</div>
-            <div class="stat-label">نسبة القبول</div>
-          </div>
-          <div class="box" style="text-align:center;">
-            <div class="stat-big" id="adv-bans" style="color:var(--danger)">—</div>
-            <div class="stat-label">إجمالي الحظر</div>
-          </div>
+        <div class="ph"><div><div class="ph-t">📈 إحصائيات متقدمة</div><div class="ph-sub">تحليل شامل لنشاط السيرفر والبوت</div></div><button class="btn btn-outline" onclick="loadAdvancedStats()">🔄 تحديث</button></div>
+        <div class="g3" style="margin-bottom:16px">
+          <div class="box" style="text-align:center"><div class="stat-big" id="adv-total-req" style="color:var(--primary)">—</div><div class="stat-label">إجمالي طلبات التحقق</div></div>
+          <div class="box" style="text-align:center"><div class="stat-big" id="adv-rate" style="color:var(--success)">—%</div><div class="stat-label">نسبة القبول</div></div>
+          <div class="box" style="text-align:center"><div class="stat-big" id="adv-bans" style="color:var(--danger)">—</div><div class="stat-label">إجمالي الحظر</div></div>
         </div>
         <div class="g2">
-          <div class="box">
-            <div class="box-h"><div class="box-t">📊 توزيع الحالات</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">📊 توزيع الحالات</div></div>
             <div id="statsBarChart">
-              <div class="chart-bar-wrap">
-                <div class="chart-bar-label"><span>✅ مقبول</span><span id="bar-app-val">0</span></div>
-                <div class="chart-bar-track"><div class="chart-bar-fill" id="bar-app" style="width:0%;background:var(--success)"></div></div>
-              </div>
-              <div class="chart-bar-wrap" style="margin-top:12px;">
-                <div class="chart-bar-label"><span>❌ مرفوض</span><span id="bar-rej-val">0</span></div>
-                <div class="chart-bar-track"><div class="chart-bar-fill" id="bar-rej" style="width:0%;background:var(--danger)"></div></div>
-              </div>
-              <div class="chart-bar-wrap" style="margin-top:12px;">
-                <div class="chart-bar-label"><span>⏳ انتظار</span><span id="bar-que-val">0</span></div>
-                <div class="chart-bar-track"><div class="chart-bar-fill" id="bar-que" style="width:0%;background:var(--warning)"></div></div>
-              </div>
-              <div class="chart-bar-wrap" style="margin-top:12px;">
-                <div class="chart-bar-label"><span>🚫 محظور</span><span id="bar-ban-val">0</span></div>
-                <div class="chart-bar-track"><div class="chart-bar-fill" id="bar-ban" style="width:0%;background:var(--primary)"></div></div>
-              </div>
+              <div class="chart-bar-wrap"><div class="chart-bar-label"><span>✅ مقبول</span><span id="bar-app-val">0</span></div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-app" style="width:0%;background:var(--success)"></div></div></div>
+              <div class="chart-bar-wrap" style="margin-top:12px"><div class="chart-bar-label"><span>❌ مرفوض</span><span id="bar-rej-val">0</span></div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-rej" style="width:0%;background:var(--danger)"></div></div></div>
+              <div class="chart-bar-wrap" style="margin-top:12px"><div class="chart-bar-label"><span>⏳ انتظار</span><span id="bar-que-val">0</span></div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-que" style="width:0%;background:var(--warning)"></div></div></div>
+              <div class="chart-bar-wrap" style="margin-top:12px"><div class="chart-bar-label"><span>🚫 محظور</span><span id="bar-ban-val">0</span></div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-ban" style="width:0%;background:var(--primary)"></div></div></div>
             </div>
           </div>
-          <div class="box">
-            <div class="box-h"><div class="box-t">📋 تفاصيل الإحصائيات</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">📋 تفاصيل الإحصائيات</div></div>
             <div class="stat-row"><span>👥 أعضاء موثقون</span><strong id="adv-mem">—</strong></div>
             <div class="stat-row"><span>🎫 تيكتات مفتوحة</span><strong id="adv-topen" style="color:var(--success)">—</strong></div>
             <div class="stat-row"><span>🎫 تيكتات مغلقة</span><strong id="adv-tclosed" style="color:var(--text2)">—</strong></div>
@@ -414,21 +310,15 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
       <div class="panel" id="panel-verify">
         <div class="ph"><div><div class="ph-t">🛡️ إعدادات التحقق</div><div class="ph-sub">تحكم في نظام التحقق من الأعضاء</div></div></div>
         <div class="g2">
-          <div class="box">
-            <div class="box-h"><div class="box-t">🔧 الإعدادات</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">🔧 الإعدادات</div></div>
             <div class="fg"><label>🆔 رول غير موثق ID</label><input type="text" id="vURole" placeholder="1497372312041951274"></div>
             <div class="fg"><label>✅ رول موثق ID</label><input type="text" id="vVRole" placeholder="1344359636127584289"></div>
-            <div class="fg"><label>📢 قناة التحقق</label>
-              <div class="ch-select"><select id="vCh"><option value="">اختر قناة</option></select></div>
-            </div>
-            <div class="fg"><label>📋 قناة السجلات</label>
-              <div class="ch-select"><select id="vLog"><option value="">اختياري</option></select></div>
-            </div>
+            <div class="fg"><label>📢 قناة التحقق</label><div class="ch-select"><select id="vCh"><option value="">اختر قناة</option></select></div></div>
+            <div class="fg"><label>📋 قناة السجلات</label><div class="ch-select"><select id="vLog"><option value="">اختياري</option></select></div></div>
             <div class="fg"><label>⏰ صلاحية الرابط (دقيقة)</label><input type="number" id="vExp" value="15" min="5" max="60"></div>
             <button class="btn btn-primary" onclick="saveVerify()">💾 حفظ الإعدادات</button>
           </div>
-          <div class="box">
-            <div class="box-h"><div class="box-t">📊 إحصائيات التحقق</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">📊 إحصائيات التحقق</div></div>
             <div class="sr"><div class="sr-ico">📋</div><div class="sr-inf"><div class="sr-lbl">الطلبات الكلية</div></div><strong id="vs-req">—</strong></div>
             <div class="sr"><div class="sr-ico">✅</div><div class="sr-inf"><div class="sr-lbl">مقبول</div></div><strong id="vs-app" style="color:var(--success)">—</strong></div>
             <div class="sr"><div class="sr-ico">❌</div><div class="sr-inf"><div class="sr-lbl">مرفوض</div></div><strong id="vs-rej" style="color:var(--danger)">—</strong></div>
@@ -439,15 +329,9 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
 
       <div class="panel" id="panel-welcome">
         <div class="ph"><div><div class="ph-t">👋 الترحيب والمغادرة</div><div class="ph-sub">تخصيص رسائل الدخول والخروج</div></div></div>
-        <div class="box">
-          <div class="box-h">
-            <div class="box-t">✉️ إعدادات الترحيب</div>
-            <label class="tog-wrap" style="cursor:pointer"><div class="tog"><input type="checkbox" id="wOn" checked><div class="tog-sl"></div></div><span class="tog-lbl">مفعّل</span></label>
-          </div>
+        <div class="box"><div class="box-h"><div class="box-t">✉️ إعدادات الترحيب</div><label class="tog-wrap" style="cursor:pointer"><div class="tog"><input type="checkbox" id="wOn" checked><div class="tog-sl"></div></div><span class="tog-lbl">مفعّل</span></label></div>
           <div class="r2">
-            <div class="fg"><label>📢 قناة الترحيب</label>
-              <div class="ch-select"><select id="wCh"><option value="">اختر قناة</option></select></div>
-            </div>
+            <div class="fg"><label>📢 قناة الترحيب</label><div class="ch-select"><select id="wCh"><option value="">اختر قناة</option></select></div></div>
             <div class="fg"><label>💬 رسالة الترحيب</label><input type="text" id="wMsg" placeholder="🎉 مرحباً بك {member}!"></div>
           </div>
           <div style="color:var(--text2);font-size:12px;margin-bottom:14px">💡 استخدم <code>{member}</code> للإشارة للعضو</div>
@@ -456,114 +340,62 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
       </div>
 
       <div class="panel" id="panel-embeds">
-        <div class="ph">
-          <div><div class="ph-t">✨ رسائل الإيمبد</div><div class="ph-sub">إنشاء وإرسال رسائل إيمبد للقنوات</div></div>
-          <button class="btn btn-primary" onclick="openEmbedModal()">➕ إنشاء إيمبد جديد</button>
-        </div>
-        <div class="box" id="embedList">
-          <div class="empty"><div class="empty-i">✨</div><div>لا توجد رسائل إيمبد محفوظة</div></div>
-        </div>
+        <div class="ph"><div><div class="ph-t">✨ رسائل الإيمبد</div><div class="ph-sub">إنشاء وإرسال رسائل إيمبد للقنوات</div></div><button class="btn btn-primary" onclick="openEmbedModal()">➕ إنشاء إيمبد جديد</button></div>
+        <div class="box" id="embedList"><div class="empty"><div class="empty-i">✨</div><div>لا توجد رسائل إيمبد محفوظة</div></div></div>
       </div>
 
       <div class="panel" id="panel-tickets">
-        <div class="ph">
-          <div><div class="ph-t">🎫 نظام التيكت</div><div class="ph-sub">إعداد وإدارة نظام الدعم</div></div>
-          <button class="btn btn-primary" onclick="openTicketSetupModal()">⚙️ إعداد النظام</button>
-        </div>
-        <div class="g2" style="margin-bottom:16px;">
-          <div class="box">
-            <div class="box-h"><div class="box-t">📂 فئات التيكت</div><button class="btn btn-outline btn-sm" onclick="openCatModal()">➕ فئة جديدة</button></div>
-            <div id="ticketCats">
-              <div class="empty"><div class="empty-i">📂</div><div>لا توجد فئات</div></div>
-            </div>
-          </div>
-          <div class="box">
-            <div class="box-h"><div class="box-t">📊 إحصائيات التيكت</div></div>
+        <div class="ph"><div><div class="ph-t">🎫 نظام التيكت</div><div class="ph-sub">إعداد وإدارة نظام الدعم</div></div><button class="btn btn-primary" onclick="openTicketSetupModal()">⚙️ إعداد النظام</button></div>
+        <div class="g2" style="margin-bottom:16px">
+          <div class="box"><div class="box-h"><div class="box-t">📂 فئات التيكت</div><button class="btn btn-outline btn-sm" onclick="openCatModal()">➕ فئة جديدة</button></div><div id="ticketCats"><div class="empty"><div class="empty-i">📂</div><div>لا توجد فئات</div></div></div></div>
+          <div class="box"><div class="box-h"><div class="box-t">📊 إحصائيات التيكت</div></div>
             <div class="sr"><div class="sr-ico">🟢</div><div class="sr-inf"><div class="sr-lbl">مفتوح</div></div><strong id="ts-open" style="color:var(--success)">—</strong></div>
             <div class="sr"><div class="sr-ico">⚫</div><div class="sr-inf"><div class="sr-lbl">مغلق</div></div><strong id="ts-closed">—</strong></div>
             <div class="sr"><div class="sr-ico">📋</div><div class="sr-inf"><div class="sr-lbl">الكل</div></div><strong id="ts-total">—</strong></div>
           </div>
         </div>
-        <div class="box">
-          <div class="box-h"><div class="box-t">🎫 التيكتات الأخيرة</div></div>
-          <div class="t-wrap">
-            <table>
-              <thead><tr><th>#</th><th>المستخدم</th><th>الفئة</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead>
-              <tbody id="ticketsTb"><tr><td colspan="6"><div class="empty"><div class="empty-i">🎫</div><div>لا توجد تيكتات</div></div></td></tr></tbody>
-            </table>
-          </div>
+        <div class="box"><div class="box-h"><div class="box-t">🎫 التيكتات الأخيرة</div></div>
+          <div class="t-wrap"><table><thead><tr><th>#</th><th>المستخدم</th><th>الفئة</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr></thead><tbody id="ticketsTb"><tr><td colspan="6"><div class="empty"><div class="empty-i">🎫</div><div>لا توجد تيكتات</div></div></td></tr></tbody></table></div>
         </div>
       </div>
 
       <div class="panel" id="panel-messages">
         <div class="ph"><div><div class="ph-t">📢 إرسال رسائل</div><div class="ph-sub">إرسال رسائل وحذفها من القنوات</div></div></div>
         <div class="g2">
-          <div class="box">
-            <div class="box-h"><div class="box-t">📤 إرسال رسالة</div></div>
-            <div class="fg"><label>📢 القناة</label>
-              <div class="ch-select"><select id="msgChannel"><option value="">اختر قناة</option></select></div>
-            </div>
-            <div class="fg"><label>💬 نوع الرسالة</label>
-              <select id="msgType" onchange="toggleMsgType()">
-                <option value="text">📝 نص عادي</option>
-                <option value="embed">✨ إيمبد</option>
-              </select>
-            </div>
-            <div id="msgTextArea">
-              <div class="fg"><label>✏️ الرسالة</label><textarea id="msgContent" placeholder="اكتب رسالتك هنا..." style="min-height:120px;"></textarea></div>
-            </div>
-            <div id="msgEmbedArea" style="display:none;">
-              <div class="fg"><label>📢 اختر إيمبد محفوظ</label>
-                <select id="msgEmbedSelect"><option value="">اختر إيمبد...</option></select>
-              </div>
-            </div>
-            <button class="btn btn-primary" style="width:100%;" onclick="sendMessage()">📤 إرسال الرسالة</button>
+          <div class="box"><div class="box-h"><div class="box-t">📤 إرسال رسالة</div></div>
+            <div class="fg"><label>📢 القناة</label><div class="ch-select"><select id="msgChannel"><option value="">اختر قناة</option></select></div></div>
+            <div class="fg"><label>💬 نوع الرسالة</label><select id="msgType" onchange="toggleMsgType()"><option value="text">📝 نص عادي</option><option value="embed">✨ إيمبد</option></select></div>
+            <div id="msgTextArea"><div class="fg"><label>✏️ الرسالة</label><textarea id="msgContent" placeholder="اكتب رسالتك هنا..." style="min-height:120px"></textarea></div></div>
+            <div id="msgEmbedArea" style="display:none"><div class="fg"><label>📢 اختر إيمبد محفوظ</label><select id="msgEmbedSelect"><option value="">اختر إيمبد...</option></select></div></div>
+            <button class="btn btn-primary" style="width:100%" onclick="sendMessage()">📤 إرسال الرسالة</button>
           </div>
-          <div class="box">
-            <div class="box-h"><div class="box-t">🗑️ حذف رسائل</div></div>
-            <div class="fg"><label>📢 القناة</label>
-              <div class="ch-select"><select id="delChannel"><option value="">اختر قناة</option></select></div>
-            </div>
+          <div class="box"><div class="box-h"><div class="box-t">🗑️ حذف رسائل</div></div>
+            <div class="fg"><label>📢 القناة</label><div class="ch-select"><select id="delChannel"><option value="">اختر قناة</option></select></div></div>
             <div class="fg"><label>🔢 عدد الرسائل (1-100)</label><input type="number" id="delCount" value="10" min="1" max="100"></div>
             <div class="fg"><label>🆔 فلتر (اختياري) — ID المستخدم فقط</label><input type="text" id="delUserId" placeholder="اترك فارغاً لحذف الكل"></div>
-            <button class="btn btn-danger" style="width:100%;margin-top:4px;" onclick="confirmDelete()">🗑️ حذف الرسائل</button>
-            <div style="color:var(--text2);font-size:12px;margin-top:8px;">⚠️ هذا الإجراء لا يمكن التراجع عنه</div>
+            <button class="btn btn-danger" style="width:100%;margin-top:4px" onclick="confirmDelete()">🗑️ حذف الرسائل</button>
+            <div style="color:var(--text2);font-size:12px;margin-top:8px">⚠️ هذا الإجراء لا يمكن التراجع عنه</div>
           </div>
         </div>
       </div>
 
       <div class="panel" id="panel-autoreply">
-        <div class="ph">
-          <div><div class="ph-t">🤖 الرد التلقائي</div><div class="ph-sub">إدارة الردود التلقائية على رسائل الأعضاء</div></div>
-          <button class="btn btn-primary" onclick="openAddModal()">➕ إضافة رد جديد</button>
-        </div>
-        <div class="box" id="replyList">
-          <div class="empty"><div class="empty-i">🤖</div><div>لا توجد ردود تلقائية</div></div>
-        </div>
+        <div class="ph"><div><div class="ph-t">🤖 الرد التلقائي</div><div class="ph-sub">إدارة الردود التلقائية على رسائل الأعضاء</div></div><button class="btn btn-primary" onclick="openAddModal()">➕ إضافة رد جديد</button></div>
+        <div class="box" id="replyList"><div class="empty"><div class="empty-i">🤖</div><div>لا توجد ردود تلقائية</div></div></div>
       </div>
 
       <div class="panel" id="panel-moderation">
         <div class="ph"><div><div class="ph-t">🔨 الإشراف</div><div class="ph-sub">كيك، باين، تحذير، وإدارة الأعضاء</div></div></div>
-        <div class="box" style="margin-bottom:16px;">
-          <div class="box-h"><div class="box-t">🔍 البحث عن عضو</div></div>
+        <div class="box" style="margin-bottom:16px"><div class="box-h"><div class="box-t">🔍 البحث عن عضو</div></div>
           <div class="r2">
-            <div class="fg" style="margin:0;">
-              <div class="member-search-wrap">
-                <input type="text" id="modMemberId" placeholder="Discord ID أو اسم المستخدم">
-              </div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:flex-end;">
-              <button class="btn btn-outline" onclick="lookupMember()" style="height:44px;">🔍 بحث</button>
-            </div>
+            <div class="fg" style="margin:0"><div class="member-search-wrap"><input type="text" id="modMemberId" placeholder="Discord ID أو اسم المستخدم"></div></div>
+            <div style="display:flex;gap:8px;align-items:flex-end"><button class="btn btn-outline" onclick="lookupMember()" style="height:44px">🔍 بحث</button></div>
           </div>
-          <div id="memberInfo" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-              <div style="width:50px;height:50px;background:var(--primary-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;">👤</div>
-              <div>
-                <div style="font-weight:800;font-size:16px;" id="mi-name">—</div>
-                <div style="color:var(--text2);font-size:12px;" id="mi-id">—</div>
-              </div>
-              <div style="margin-right:auto;display:flex;gap:8px;flex-wrap:wrap;" id="mi-badges"></div>
+          <div id="memberInfo" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+              <div style="width:50px;height:50px;background:var(--primary-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">👤</div>
+              <div><div style="font-weight:800;font-size:16px" id="mi-name">—</div><div style="color:var(--text2);font-size:12px" id="mi-id">—</div></div>
+              <div style="margin-right:auto;display:flex;gap:8px;flex-wrap:wrap" id="mi-badges"></div>
             </div>
             <div class="mod-action">
               <button class="btn btn-warning" onclick="modAction('warn')">⚠️ تحذير</button>
@@ -574,77 +406,36 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
             </div>
           </div>
         </div>
-        <div class="box">
-          <div class="box-h"><div class="box-t">📋 سجل الإجراءات الأخيرة</div></div>
-          <div class="t-wrap">
-            <table>
-              <thead><tr><th>العضو</th><th>الإجراء</th><th>المشرف</th><th>السبب</th><th>التاريخ</th></tr></thead>
-              <tbody id="modLogTb"><tr><td colspan="5"><div class="empty"><div class="empty-i">📋</div><div>لا يوجد سجل</div></div></td></tr></tbody>
-            </table>
-          </div>
+        <div class="box"><div class="box-h"><div class="box-t">📋 سجل الإجراءات الأخيرة</div></div>
+          <div class="t-wrap"><table><thead><tr><th>العضو</th><th>الإجراء</th><th>المشرف</th><th>السبب</th><th>التاريخ</th></tr></thead><tbody id="modLogTb"><tr><td colspan="5"><div class="empty"><div class="empty-i">📋</div><div>لا يوجد سجل</div></div></td></tr></tbody></table></div>
         </div>
       </div>
 
       <div class="panel" id="panel-roles">
         <div class="ph"><div><div class="ph-t">🎭 إدارة الرولات</div><div class="ph-sub">إضافة وإزالة الرولات من الأعضاء</div></div></div>
         <div class="g2">
-          <div class="box">
-            <div class="box-h"><div class="box-t">➕ إضافة / إزالة رول</div></div>
+          <div class="box"><div class="box-h"><div class="box-t">➕ إضافة / إزالة رول</div></div>
             <div class="fg"><label>👤 Discord ID للعضو</label><input type="text" id="roleUserId" placeholder="123456789012345678"></div>
-            <div class="fg"><label>🎭 الرول</label>
-              <select id="roleSelect"><option value="">اختر رول</option></select>
-            </div>
-            <div style="display:flex;gap:9px;margin-top:4px;">
-              <button class="btn btn-success" style="flex:1" onclick="manageRole('add')">➕ إضافة الرول</button>
-              <button class="btn btn-danger" style="flex:1" onclick="manageRole('remove')">➖ إزالة الرول</button>
-            </div>
+            <div class="fg"><label>🎭 الرول</label><select id="roleSelect"><option value="">اختر رول</option></select></div>
+            <div style="display:flex;gap:9px;margin-top:4px"><button class="btn btn-success" style="flex:1" onclick="manageRole('add')">➕ إضافة الرول</button><button class="btn btn-danger" style="flex:1" onclick="manageRole('remove')">➖ إزالة الرول</button></div>
           </div>
-          <div class="box">
-            <div class="box-h"><div class="box-t">📋 رولات السيرفر</div></div>
-            <div id="rolesList" style="max-height:300px;overflow-y:auto;">
-              <div class="empty"><div class="empty-i">🎭</div><div>جاري تحميل الرولات...</div></div>
-            </div>
-          </div>
+          <div class="box"><div class="box-h"><div class="box-t">📋 رولات السيرفر</div></div><div id="rolesList" style="max-height:300px;overflow-y:auto"><div class="empty"><div class="empty-i">🎭</div><div>جاري تحميل الرولات...</div></div></div></div>
         </div>
       </div>
 
       <div class="panel" id="panel-bans">
         <div class="ph"><div><div class="ph-t">🚫 المحظورون</div><div class="ph-sub">إدارة قائمة الحظر</div></div></div>
-        <div class="box">
-          <div class="t-wrap">
-            <table>
-              <thead><tr><th>العضو</th><th>Discord ID</th><th>النوع</th><th>تاريخ الحظر</th><th>إجراء</th></tr></thead>
-              <tbody id="bansTb"></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="box"><div class="t-wrap"><table><thead><tr><th>العضو</th><th>Discord ID</th><th>النوع</th><th>تاريخ الحظر</th><th>إجراء</th></tr></thead><tbody id="bansTb"></tbody></table></div></div>
       </div>
 
       <div class="panel" id="panel-members">
         <div class="ph"><div><div class="ph-t">👥 الأعضاء الموثقون</div><div class="ph-sub">قائمة الأعضاء الذين أكملوا التحقق</div></div></div>
-        <div class="box">
-          <div class="t-wrap">
-            <table>
-              <thead><tr><th>الاسم</th><th>Discord ID</th><th>IP</th><th>تاريخ التوثيق</th></tr></thead>
-              <tbody id="memTb"></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="box"><div class="t-wrap"><table><thead><tr><th>الاسم</th><th>Discord ID</th><th>IP</th><th>تاريخ التوثيق</th></tr></thead><tbody id="memTb"></tbody></table></div></div>
       </div>
 
       <div class="panel" id="panel-queue">
-        <div class="ph">
-          <div><div class="ph-t">⏳ قائمة الانتظار</div><div class="ph-sub">طلبات التحقق المعلقة</div></div>
-          <button class="btn btn-danger" onclick="clearQueue()">🗑️ مسح الكل</button>
-        </div>
-        <div class="box">
-          <div class="t-wrap">
-            <table>
-              <thead><tr><th>Discord ID</th><th>الإجراء</th><th>التاريخ</th></tr></thead>
-              <tbody id="queTb"></tbody>
-            </table>
-          </div>
-        </div>
+        <div class="ph"><div><div class="ph-t">⏳ قائمة الانتظار</div><div class="ph-sub">طلبات التحقق المعلقة</div></div><button class="btn btn-danger" onclick="clearQueue()">🗑️ مسح الكل</button></div>
+        <div class="box"><div class="t-wrap"><table><thead><tr><th>Discord ID</th><th>الإجراء</th><th>التاريخ</th></tr></thead><tbody id="queTb"></tbody></table></div></div>
       </div>
 
     </div>
@@ -653,39 +444,20 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
 
 <div class="modal-ov" id="replyModal">
   <div class="modal">
-    <div class="modal-h">
-      <div class="modal-t" id="modalTitle">➕ إضافة رد تلقائي</div>
-      <button class="modal-x" onclick="closeModal('replyModal')">✕</button>
-    </div>
+    <div class="modal-h"><div class="modal-t" id="modalTitle">➕ إضافة رد تلقائي</div><button class="modal-x" onclick="closeModal('replyModal')">✕</button></div>
     <input type="hidden" id="editId">
     <div class="fg"><label>🔑 كلمة التحريك (Trigger)</label><input type="text" id="arTrig" placeholder="مثال: مرحبا"></div>
     <div class="fg"><label>💬 الرد</label><textarea id="arResp" placeholder="مثال: أهلاً بك! 👋"></textarea></div>
-    <div class="r2">
-      <div class="fg"><label>📢 قناة محددة (اختياري)</label>
-        <div class="ch-select"><select id="arCh"><option value="">كل القنوات</option></select></div>
-      </div>
-      <div class="fg"><label>🔍 نوع المطابقة</label>
-        <select id="arMatch">
-          <option value="exact">مطابقة تامة</option>
-          <option value="contains">يحتوي على</option>
-          <option value="starts">يبدأ بـ</option>
-        </select>
-      </div>
-    </div>
+    <div class="r2"><div class="fg"><label>📢 قناة محددة (اختياري)</label><div class="ch-select"><select id="arCh"><option value="">كل القنوات</option></select></div></div>
+      <div class="fg"><label>🔍 نوع المطابقة</label><select id="arMatch"><option value="exact">مطابقة تامة</option><option value="contains">يحتوي على</option><option value="starts">يبدأ بـ</option></select></div></div>
     <label class="tog-wrap" style="cursor:pointer"><div class="tog"><input type="checkbox" id="arEn" checked><div class="tog-sl"></div></div><span class="tog-lbl">تفعيل الرد</span></label>
-    <div class="modal-f">
-      <button class="btn btn-outline" onclick="closeModal('replyModal')">إلغاء</button>
-      <button class="btn btn-primary" onclick="saveReply()">💾 حفظ</button>
-    </div>
+    <div class="modal-f"><button class="btn btn-outline" onclick="closeModal('replyModal')">إلغاء</button><button class="btn btn-primary" onclick="saveReply()">💾 حفظ</button></div>
   </div>
 </div>
 
 <div class="modal-ov" id="embedModal">
   <div class="modal wide">
-    <div class="modal-h">
-      <div class="modal-t" id="embedModalTitle">✨ إنشاء رسالة إيمبد</div>
-      <button class="modal-x" onclick="closeModal('embedModal')">✕</button>
-    </div>
+    <div class="modal-h"><div class="modal-t" id="embedModalTitle">✨ إنشاء رسالة إيمبد</div><button class="modal-x" onclick="closeModal('embedModal')">✕</button></div>
     <input type="hidden" id="embedEditId">
     <div class="g2">
       <div>
@@ -705,93 +477,58 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
             <div class="color-dot" style="background:#1abc9c" onclick="pickColor('#1abc9c',this)" title="أزرق مائي"></div>
             <div class="color-dot" style="background:#e74c3c" onclick="pickColor('#e74c3c',this)" title="برتقالي أحمر"></div>
             <div class="color-dot" style="background:#f39c12" onclick="pickColor('#f39c12',this)" title="برتقالي"></div>
-            <input type="color" id="embColorCustom" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;background:none;padding:0;overflow:hidden;" title="اختر لون مخصص" oninput="pickColorCustom(this.value)">
+            <input type="color" id="embColorCustom" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;background:none;padding:0;overflow:hidden" title="اختر لون مخصص" oninput="pickColorCustom(this.value)">
           </div>
           <input type="hidden" id="embColor" value="#5865f2">
         </div>
       </div>
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">👁️ معاينة</div>
-        <div class="embed-preview" id="embedPreview" style="border-right-color:#5865f2;">
+        <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">👁️ معاينة</div>
+        <div class="embed-preview" id="embedPreview" style="border-right-color:#5865f2">
           <div class="embed-preview-title" id="prev-title">عنوان الإيمبد</div>
           <div class="embed-preview-desc" id="prev-desc">وصف الإيمبد سيظهر هنا...</div>
-          <div class="embed-preview-footer" id="prev-footer" style="display:none;"></div>
-          <img id="prev-image" class="embed-preview-image" style="display:none;" src="" alt="">
+          <div class="embed-preview-footer" id="prev-footer" style="display:none"></div>
+          <img id="prev-image" class="embed-preview-image" style="display:none" src="" alt="">
         </div>
         <div class="divider"></div>
-        <div class="fg"><label>📢 إرسال إلى قناة</label>
-          <div class="ch-select"><select id="embChannel"><option value="">اختر قناة (اختياري)</option></select></div>
-        </div>
+        <div class="fg"><label>📢 إرسال إلى قناة</label><div class="ch-select"><select id="embChannel"><option value="">اختر قناة (اختياري)</option></select></div></div>
       </div>
     </div>
-    <div class="modal-f">
-      <button class="btn btn-outline" onclick="closeModal('embedModal')">إلغاء</button>
-      <button class="btn btn-success" onclick="saveEmbed(false)">💾 حفظ فقط</button>
-      <button class="btn btn-primary" onclick="saveEmbed(true)">📤 حفظ وإرسال</button>
-    </div>
+    <div class="modal-f"><button class="btn btn-outline" onclick="closeModal('embedModal')">إلغاء</button><button class="btn btn-success" onclick="saveEmbed(false)">💾 حفظ فقط</button><button class="btn btn-primary" onclick="saveEmbed(true)">📤 حفظ وإرسال</button></div>
   </div>
 </div>
 
 <div class="modal-ov" id="modModal">
   <div class="modal">
-    <div class="modal-h">
-      <div class="modal-t" id="modModalTitle">🔨 إجراء إشرافي</div>
-      <button class="modal-x" onclick="closeModal('modModal')">✕</button>
-    </div>
-    <div id="modTargetInfo" style="background:var(--card2);border-radius:8px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
-      <div style="font-size:24px;">👤</div>
-      <div>
-        <div style="font-weight:700;" id="mod-target-name">—</div>
-        <div style="font-size:12px;color:var(--text2);" id="mod-target-id">—</div>
-      </div>
-    </div>
-    <input type="hidden" id="modAction">
-    <input type="hidden" id="modTargetId">
-    <div class="fg"><label>📝 السبب</label><textarea id="modReason" placeholder="أدخل سبب الإجراء..." style="min-height:80px;"></textarea></div>
-    <div class="fg" id="modDurationWrap" style="display:none;"><label>⏰ المدة (دقائق)</label><input type="number" id="modDuration" value="10" min="1" max="40320"></div>
-    <div class="fg" id="modDelDaysWrap" style="display:none;"><label>🗑️ حذف رسائل (أيام)</label><input type="number" id="modDelDays" value="1" min="0" max="7"></div>
-    <div class="modal-f">
-      <button class="btn btn-outline" onclick="closeModal('modModal')">إلغاء</button>
-      <button class="btn btn-danger" id="modConfirmBtn" onclick="executeModAction()">تأكيد</button>
-    </div>
+    <div class="modal-h"><div class="modal-t" id="modModalTitle">🔨 إجراء إشرافي</div><button class="modal-x" onclick="closeModal('modModal')">✕</button></div>
+    <div id="modTargetInfo" style="background:var(--card2);border-radius:8px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px"><div style="font-size:24px">👤</div><div><div style="font-weight:700" id="mod-target-name">—</div><div style="font-size:12px;color:var(--text2)" id="mod-target-id">—</div></div></div>
+    <input type="hidden" id="modAction"><input type="hidden" id="modTargetId">
+    <div class="fg"><label>📝 السبب</label><textarea id="modReason" placeholder="أدخل سبب الإجراء..." style="min-height:80px"></textarea></div>
+    <div class="fg" id="modDurationWrap" style="display:none"><label>⏰ المدة (دقائق)</label><input type="number" id="modDuration" value="10" min="1" max="40320"></div>
+    <div class="fg" id="modDelDaysWrap" style="display:none"><label>🗑️ حذف رسائل (أيام)</label><input type="number" id="modDelDays" value="1" min="0" max="7"></div>
+    <div class="modal-f"><button class="btn btn-outline" onclick="closeModal('modModal')">إلغاء</button><button class="btn btn-danger" id="modConfirmBtn" onclick="executeModAction()">تأكيد</button></div>
   </div>
 </div>
 
 <div class="modal-ov" id="ticketSetupModal">
   <div class="modal">
-    <div class="modal-h">
-      <div class="modal-t">⚙️ إعداد نظام التيكت</div>
-      <button class="modal-x" onclick="closeModal('ticketSetupModal')">✕</button>
-    </div>
-    <div class="fg"><label>📢 قناة إرسال رسالة التيكت</label>
-      <div class="ch-select"><select id="ticketChannel"><option value="">اختر قناة</option></select></div>
-    </div>
+    <div class="modal-h"><div class="modal-t">⚙️ إعداد نظام التيكت</div><button class="modal-x" onclick="closeModal('ticketSetupModal')">✕</button></div>
+    <div class="fg"><label>📢 قناة إرسال رسالة التيكت</label><div class="ch-select"><select id="ticketChannel"><option value="">اختر قناة</option></select></div></div>
     <div class="fg"><label>📂 كاتيقوري فتح التيكتات</label><input type="text" id="ticketCatId" placeholder="ID الكاتيقوري"></div>
-    <div class="fg"><label>🎭 رول الدعم (سيُذكر في التيكت)</label>
-      <select id="ticketSupportRole"><option value="">اختر رول</option></select>
-    </div>
+    <div class="fg"><label>🎭 رول الدعم (سيُذكر في التيكت)</label><select id="ticketSupportRole"><option value="">اختر رول</option></select></div>
     <div class="fg"><label>💬 رسالة الإيمبد</label><textarea id="ticketEmbedMsg" placeholder="📩 افتح تيكت للحصول على المساعدة..."></textarea></div>
-    <div class="fg"><label>🎨 لون الإيمبد</label><input type="color" id="ticketColor" value="#5865f2" style="width:60px;height:36px;border-radius:8px;border:none;cursor:pointer;"></div>
-    <div class="modal-f">
-      <button class="btn btn-outline" onclick="closeModal('ticketSetupModal')">إلغاء</button>
-      <button class="btn btn-primary" onclick="saveTicketSetup()">📤 إرسال رسالة التيكت</button>
-    </div>
+    <div class="fg"><label>🎨 لون الإيمبد</label><input type="color" id="ticketColor" value="#5865f2" style="width:60px;height:36px;border-radius:8px;border:none;cursor:pointer"></div>
+    <div class="modal-f"><button class="btn btn-outline" onclick="closeModal('ticketSetupModal')">إلغاء</button><button class="btn btn-primary" onclick="saveTicketSetup()">📤 إرسال رسالة التيكت</button></div>
   </div>
 </div>
 
 <div class="modal-ov" id="catModal">
   <div class="modal">
-    <div class="modal-h">
-      <div class="modal-t">📂 إضافة فئة تيكت</div>
-      <button class="modal-x" onclick="closeModal('catModal')">✕</button>
-    </div>
+    <div class="modal-h"><div class="modal-t">📂 إضافة فئة تيكت</div><button class="modal-x" onclick="closeModal('catModal')">✕</button></div>
     <div class="fg"><label>🔤 اسم الفئة</label><input type="text" id="catName" placeholder="مثال: دعم فني"></div>
     <div class="fg"><label>😀 الإيموجي</label><input type="text" id="catEmoji" placeholder="مثال: 🛠️"></div>
     <div class="fg"><label>📝 الوصف</label><input type="text" id="catDesc" placeholder="وصف قصير للفئة"></div>
-    <div class="modal-f">
-      <button class="btn btn-outline" onclick="closeModal('catModal')">إلغاء</button>
-      <button class="btn btn-primary" onclick="saveCat()">💾 إضافة</button>
-    </div>
+    <div class="modal-f"><button class="btn btn-outline" onclick="closeModal('catModal')">إلغاء</button><button class="btn btn-primary" onclick="saveCat()">💾 إضافة</button></div>
   </div>
 </div>
 
@@ -856,20 +593,6 @@ async function refreshChannels() {
   } catch(e) {}
 }
 
-function populateSelect(selId, items, valueKey, labelKey, prefix='') {
-  const sel = document.getElementById(selId);
-  if (!sel) return;
-  const first = sel.options[0];
-  sel.innerHTML = '';
-  sel.appendChild(first);
-  items.forEach(item => {
-    const o = document.createElement('option');
-    o.value = item[valueKey];
-    o.textContent = prefix + (item[labelKey] || item[valueKey]);
-    sel.appendChild(o);
-  });
-}
-
 function populateAllChannelSelects() {
   const ids = ['cfgLog','cfgWelcomeCh','vCh','vLog','wCh','msgChannel','delChannel','arCh','embChannel','ticketChannel'];
   ids.forEach(id => {
@@ -890,19 +613,15 @@ function populateAllChannelSelects() {
 }
 
 function populateAllRoleSelects() {
-  const ids = ['roleSelect','ticketSupportRole'];
-  ids.forEach(id => {
+  ['roleSelect','ticketSupportRole'].forEach(id => {
     const sel = document.getElementById(id);
     if (!sel) return;
     const cur = sel.value;
     const first = sel.options[0];
-    sel.innerHTML = '';
-    sel.appendChild(first);
+    sel.innerHTML = ''; sel.appendChild(first);
     cachedRoles.forEach(r => {
       const o = document.createElement('option');
-      o.value = r.id;
-      o.textContent = '@' + r.name;
-      o.style.color = r.color || '';
+      o.value = r.id; o.textContent = '@'+r.name; o.style.color = r.color||'';
       sel.appendChild(o);
     });
     if (cur) sel.value = cur;
@@ -914,14 +633,7 @@ function renderRolesList() {
   const el = document.getElementById('rolesList');
   if (!el) return;
   if (!cachedRoles.length) { el.innerHTML = '<div class="empty"><div class="empty-i">🎭</div><div>لا توجد رولات أو لم يتم التحميل</div></div>'; return; }
-  el.innerHTML = cachedRoles.map(r => `
-    <div class="role-tag" style="border-color:${r.color||'var(--border2)'};margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;padding:7px 12px;">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <div class="role-dot" style="background:${r.color||'var(--text3)'}"></div>
-        <span>@${esc(r.name)}</span>
-      </div>
-      <code style="font-size:10px;">${r.id}</code>
-    </div>`).join('');
+  el.innerHTML = cachedRoles.map(r => `<div class="role-tag" style="border-color:${r.color||'var(--border2)'};margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;padding:7px 12px"><div style="display:flex;align-items:center;gap:8px"><div class="role-dot" style="background:${r.color||'var(--text3)'}"></div><span>@${esc(r.name)}</span></div><code style="font-size:10px">${r.id}</code></div>`).join('');
 }
 
 const ptitles={overview:'نظرة عامة',config:'إعدادات البوت',stats:'إحصائيات متقدمة',verify:'التحقق',autoreply:'الرد التلقائي',welcome:'الترحيب والمغادرة',embeds:'رسائل الإيمبد',tickets:'نظام التيكت',messages:'إرسال رسائل',moderation:'الإشراف',roles:'إدارة الرولات',bans:'المحظورون',members:'الأعضاء',queue:'قائمة الانتظار'};
@@ -932,9 +644,7 @@ function go(name, el) {
   const panel = document.getElementById('panel-'+name);
   if (panel) panel.classList.add('active');
   if (el) el.classList.add('active');
-  else {
-    document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+name+"'"))n.classList.add('active');});
-  }
+  else { document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+name+"'"))n.classList.add('active');}); }
   document.getElementById('pageTitle').textContent = ptitles[name]||name;
   closeSb();
   if(name==='autoreply') loadReplies();
@@ -969,8 +679,7 @@ function loadStats(){
     document.getElementById('vs-req').textContent=d.requested??0;
     document.getElementById('vs-app').textContent=d.approved??0;
     document.getElementById('vs-rej').textContent=d.rejected??0;
-    const rate=d.requested>0?Math.round((d.approved/d.requested)*100):0;
-    document.getElementById('vs-rate').textContent=rate+'%';
+    document.getElementById('vs-rate').textContent=d.requested>0?Math.round((d.approved/d.requested)*100)+'%':'0%';
     document.getElementById('botStatusIco').textContent='🟢';
     document.getElementById('botStatusSub').textContent='البوت يعمل بشكل طبيعي';
     document.getElementById('botStatusBadge').textContent='نشط';
@@ -1010,10 +719,7 @@ function loadConfig(){
   api('/api/config').then(d=>{
     document.getElementById('cfgPrefix').value=d.prefix||'!';
     document.getElementById('cfgStatus').value=d.bot_status||'';
-    ['cfgLog','cfgWelcomeCh','wCh'].forEach(id=>{
-      const sel=document.getElementById(id);
-      if(sel) sel.value = d.log_channel||d.welcome_channel||'';
-    });
+    ['cfgLog','cfgWelcomeCh','wCh'].forEach(id=>{const sel=document.getElementById(id);if(sel)sel.value=d.log_channel||d.welcome_channel||'';});
     if(document.getElementById('cfgLog')) document.getElementById('cfgLog').value=d.log_channel||'';
     if(document.getElementById('cfgWelcomeCh')) document.getElementById('cfgWelcomeCh').value=d.welcome_channel||'';
     if(document.getElementById('wCh')) document.getElementById('wCh').value=d.welcome_channel||'';
@@ -1024,18 +730,14 @@ function loadConfig(){
   }).catch(()=>{});
 }
 function saveConfig(){
-  const data={
+  api('/api/config',{method:'POST',body:{
     prefix:document.getElementById('cfgPrefix').value||'!',
     bot_status:document.getElementById('cfgStatus').value||'',
     log_channel:document.getElementById('cfgLog').value||'',
     welcome_channel:document.getElementById('cfgWelcomeCh').value||document.getElementById('wCh').value||'',
     welcome_message:document.getElementById('cfgWelcomeMsg').value||document.getElementById('wMsg').value||'',
     welcome_enabled:document.getElementById('cfgWelcomeOn').checked,
-  };
-  api('/api/config',{method:'POST',body:data}).then(d=>{
-    if(d.success)toast('✅ تم حفظ الإعدادات');
-    else toast('❌ فشل الحفظ','error');
-  }).catch(()=>toast('❌ خطأ في الاتصال','error'));
+  }}).then(d=>{if(d.success)toast('✅ تم حفظ الإعدادات');else toast('❌ فشل الحفظ','error');}).catch(()=>toast('❌ خطأ في الاتصال','error'));
 }
 
 function loadVerify(){
@@ -1048,17 +750,13 @@ function loadVerify(){
   }).catch(()=>{});
 }
 function saveVerify(){
-  const data={
+  api('/api/verify-settings',{method:'POST',body:{
     unverified_role:parseInt(document.getElementById('vURole').value)||0,
     verified_role:parseInt(document.getElementById('vVRole').value)||0,
     verify_channel:document.getElementById('vCh').value||'',
     log_channel:document.getElementById('vLog').value||'',
     token_expire_min:parseInt(document.getElementById('vExp').value)||15,
-  };
-  api('/api/verify-settings',{method:'POST',body:data}).then(d=>{
-    if(d.success)toast('✅ تم حفظ إعدادات التحقق');
-    else toast('❌ فشل','error');
-  }).catch(()=>toast('❌ خطأ','error'));
+  }}).then(d=>{if(d.success)toast('✅ تم حفظ إعدادات التحقق');else toast('❌ فشل','error');}).catch(()=>toast('❌ خطأ','error'));
 }
 
 function openEmbedModal(embed=null) {
@@ -1074,7 +772,6 @@ function openEmbedModal(embed=null) {
   updateEmbedPreview();
   openModal('embedModal');
 }
-
 function updateEmbedPreview() {
   const title = document.getElementById('embTitle').value || 'عنوان الإيمبد';
   const desc = document.getElementById('embDesc').value || 'وصف الإيمبد سيظهر هنا...';
@@ -1082,451 +779,67 @@ function updateEmbedPreview() {
   const img = document.getElementById('embImage').value;
   document.getElementById('prev-title').textContent = title;
   document.getElementById('prev-desc').textContent = desc;
-  const prevFooter = document.getElementById('prev-footer');
-  if (footer) { prevFooter.style.display='block'; prevFooter.textContent=footer; } else { prevFooter.style.display='none'; }
-  const prevImg = document.getElementById('prev-image');
-  if (img) { prevImg.style.display='block'; prevImg.src=img; } else { prevImg.style.display='none'; }
+  const pf = document.getElementById('prev-footer');
+  if (footer) { pf.style.display='block'; pf.textContent=footer; } else { pf.style.display='none'; }
+  const pi = document.getElementById('prev-image');
+  if (img) { pi.style.display='block'; pi.src=img; } else { pi.style.display='none'; }
   document.getElementById('embedPreview').style.borderRightColor = embedColor;
 }
-
-function pickColor(color, el) {
-  embedColor = color;
-  document.getElementById('embColor').value = color;
-  document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
-  if (el) el.classList.add('active');
-  updateEmbedPreview();
-}
-function pickColorCustom(color) {
-  embedColor = color;
-  document.getElementById('embColor').value = color;
-  document.querySelectorAll('.color-dot:not(input)').forEach(d=>d.classList.remove('active'));
-  updateEmbedPreview();
-}
-
+function pickColor(c, el){embedColor=c;document.getElementById('embColor').value=c;document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));if(el)el.classList.add('active');updateEmbedPreview();}
+function pickColorCustom(c){embedColor=c;document.getElementById('embColor').value=c;document.querySelectorAll('.color-dot:not(input)').forEach(d=>d.classList.remove('active'));updateEmbedPreview();}
 function saveEmbed(send) {
-  const name = document.getElementById('embName').value.trim();
-  const title = document.getElementById('embTitle').value.trim();
-  const desc = document.getElementById('embDesc').value.trim();
-  if (!title && !desc) { toast('❌ أدخل عنواناً أو وصفاً', 'error'); return; }
-  const editId = document.getElementById('embedEditId').value;
-  const embed = {
-    id: editId || Date.now().toString(),
-    name: name || title,
-    title, desc,
-    url: document.getElementById('embUrl').value.trim(),
-    image: document.getElementById('embImage').value.trim(),
-    footer: document.getElementById('embFooter').value.trim(),
-    color: embedColor,
-    createdAt: editId ? undefined : new Date().toISOString(),
-  };
-  if (editId) {
-    const idx = savedEmbeds.findIndex(e=>e.id===editId);
-    if (idx>=0) savedEmbeds[idx] = {...savedEmbeds[idx],...embed};
-  } else {
-    savedEmbeds.unshift(embed);
-  }
-  localStorage.setItem('saved_embeds', JSON.stringify(savedEmbeds));
-  const channelId = document.getElementById('embChannel').value;
-  if (send && channelId) {
-    api('/api/send-embed', {
-      method:'POST',
-      body: { channel_id: channelId, embed: { title, description: desc, color: parseInt(embedColor.replace('#',''), 16), url: embed.url||undefined, image: embed.image ? {url: embed.image} : undefined, footer: embed.footer ? {text: embed.footer} : undefined } }
-    }).then(d => {
-      if(d.success) toast('✅ تم حفظ وإرسال الإيمبد');
-      else toast('⚠️ تم الحفظ — فشل الإرسال: '+(d.error||''), 'error');
-    }).catch(()=>toast('⚠️ تم الحفظ — خطأ في الاتصال','error'));
-  } else {
-    toast('✅ تم حفظ الإيمبد');
-  }
-  closeModal('embedModal');
-  loadEmbedList();
-  document.getElementById('s-emb').textContent = savedEmbeds.length;
+  const title=document.getElementById('embTitle').value.trim(),desc=document.getElementById('embDesc').value.trim();
+  if(!title&&!desc){toast('❌ أدخل عنواناً أو وصفاً','error');return;}
+  const editId=document.getElementById('embedEditId').value;
+  const e={id:editId||Date.now().toString(),name:document.getElementById('embName').value.trim()||title,title,desc,url:document.getElementById('embUrl').value.trim(),image:document.getElementById('embImage').value.trim(),footer:document.getElementById('embFooter').value.trim(),color:embedColor,createdAt:editId?undefined:new Date().toISOString()};
+  if(editId){const i=savedEmbeds.findIndex(x=>x.id===editId);if(i>=0)savedEmbeds[i]={...savedEmbeds[i],...e};}else savedEmbeds.unshift(e);
+  localStorage.setItem('saved_embeds',JSON.stringify(savedEmbeds));
+  const ch=document.getElementById('embChannel').value;
+  if(send&&ch){api('/api/send-embed',{method:'POST',body:{channel_id:ch,embed:{title,description:desc,color:parseInt(embedColor.replace('#',''),16),url:e.url||undefined,image:e.image?{url:e.image}:undefined,footer:e.footer?{text:e.footer}:undefined}}}).then(d=>{if(d.success)toast('✅ تم حفظ وإرسال الإيمبد');else toast('⚠️ تم الحفظ — فشل الإرسال','error');}).catch(()=>toast('⚠️ تم الحفظ — خطأ','error'));}
+  else toast('✅ تم حفظ الإيمبد');
+  closeModal('embedModal');loadEmbedList();document.getElementById('s-emb').textContent=savedEmbeds.length;
 }
-
-function loadEmbedList() {
-  savedEmbeds = JSON.parse(localStorage.getItem('saved_embeds') || '[]');
-  const el = document.getElementById('embedList');
-  if (!savedEmbeds.length) { el.innerHTML = '<div class="empty"><div class="empty-i">✨</div><div>لا توجد رسائل إيمبد محفوظة — أنشئ أول إيمبد!</div></div>'; return; }
-  el.innerHTML = savedEmbeds.map(e => `
-    <div class="embed-card">
-      <div class="embed-card-bar" style="background:${e.color||'#5865f2'}"></div>
-      <div class="embed-card-info">
-        <div class="embed-card-name">${esc(e.name||e.title)}</div>
-        <div class="embed-card-sub">${esc((e.desc||'').substring(0,60))}${(e.desc||'').length>60?'...':''}</div>
-      </div>
-      <div style="display:flex;gap:7px;">
-        <div class="ico-btn" title="تعديل" onclick='openEmbedModal(${JSON.stringify(e).replace(/'/g,"&#39;")})'>✏️</div>
-        <div class="ico-btn" title="إرسال" onclick="sendSavedEmbed('${e.id}')">📤</div>
-        <div class="ico-btn del" title="حذف" onclick="deleteEmbed('${e.id}')">🗑️</div>
-      </div>
-    </div>`).join('');
+function loadEmbedList(){
+  savedEmbeds=JSON.parse(localStorage.getItem('saved_embeds')||'[]');
+  const el=document.getElementById('embedList');
+  if(!savedEmbeds.length){el.innerHTML='<div class="empty"><div class="empty-i">✨</div><div>لا توجد رسائل إيمبد محفوظة</div></div>';return;}
+  el.innerHTML=savedEmbeds.map(e=>`<div class="embed-card"><div class="embed-card-bar" style="background:${e.color||'#5865f2'}"></div><div class="embed-card-info"><div class="embed-card-name">${esc(e.name||e.title)}</div><div class="embed-card-sub">${esc((e.desc||'').substring(0,60))}${(e.desc||'').length>60?'...':''}</div></div><div style="display:flex;gap:7px"><div class="ico-btn" title="تعديل" onclick='openEmbedModal(${JSON.stringify(e).replace(/'/g,"&#39;")})'>✏️</div><div class="ico-btn del" title="حذف" onclick="deleteEmbed('${e.id}')">🗑️</div></div></div>`).join('');
 }
-
-function sendSavedEmbed(id) {
-  const embed = savedEmbeds.find(e=>e.id===id);
-  if (!embed) return;
-  openEmbedModal(embed);
-  toast('💡 اختر القناة ثم اضغط "حفظ وإرسال"', 'info');
+function deleteEmbed(id){if(!confirm('حذف هذا الإيمبد؟'))return;savedEmbeds=savedEmbeds.filter(e=>e.id!==id);localStorage.setItem('saved_embeds',JSON.stringify(savedEmbeds));loadEmbedList();toast('✅ تم الحذف');}
+function populateEmbedSelectForMsg(){savedEmbeds=JSON.parse(localStorage.getItem('saved_embeds')||'[]');const sel=document.getElementById('msgEmbedSelect');if(!sel)return;const f=sel.options[0];sel.innerHTML='';sel.appendChild(f);savedEmbeds.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.textContent=e.name||e.title;sel.appendChild(o);});}
+function toggleMsgType(){const t=document.getElementById('msgType').value;document.getElementById('msgTextArea').style.display=t==='text'?'block':'none';document.getElementById('msgEmbedArea').style.display=t==='embed'?'block':'none';}
+async function sendMessage(){const ch=document.getElementById('msgChannel').value;if(!ch){toast('❌ اختر قناة','error');return;}
+  if(document.getElementById('msgType').value==='text'){const c=document.getElementById('msgContent').value.trim();if(!c){toast('❌ اكتب رسالة','error');return;}const d=await api('/api/send-message',{method:'POST',body:{channel_id:ch,content:c}});if(d.success){toast('✅ تم إرسال الرسالة');document.getElementById('msgContent').value='';}else toast('❌ فشل','error');}
+  else{const eid=document.getElementById('msgEmbedSelect').value;if(!eid){toast('❌ اختر إيمبد','error');return;}const e=savedEmbeds.find(x=>x.id===eid);const d=await api('/api/send-embed',{method:'POST',body:{channel_id:ch,embed:{title:e.title,description:e.desc,color:parseInt((e.color||'#5865f2').replace('#',''),16),url:e.url||undefined,image:e.image?{url:e.image}:undefined,footer:e.footer?{text:e.footer}:undefined}}});if(d.success)toast('✅ تم إرسال الإيمبد');else toast('❌ فشل','error');}
 }
-
-function deleteEmbed(id) {
-  if (!confirm('حذف هذا الإيمبد؟')) return;
-  savedEmbeds = savedEmbeds.filter(e=>e.id!==id);
-  localStorage.setItem('saved_embeds', JSON.stringify(savedEmbeds));
-  loadEmbedList();
-  toast('✅ تم الحذف');
-}
-
-function populateEmbedSelectForMsg() {
-  savedEmbeds = JSON.parse(localStorage.getItem('saved_embeds') || '[]');
-  const sel = document.getElementById('msgEmbedSelect');
-  if (!sel) return;
-  const first = sel.options[0];
-  sel.innerHTML = '';
-  sel.appendChild(first);
-  savedEmbeds.forEach(e => {
-    const o = document.createElement('option');
-    o.value = e.id;
-    o.textContent = e.name || e.title;
-    sel.appendChild(o);
-  });
-}
-
-function toggleMsgType() {
-  const t = document.getElementById('msgType').value;
-  document.getElementById('msgTextArea').style.display = t==='text'?'block':'none';
-  document.getElementById('msgEmbedArea').style.display = t==='embed'?'block':'none';
-}
-
-async function sendMessage() {
-  const channelId = document.getElementById('msgChannel').value;
-  if (!channelId) { toast('❌ اختر قناة', 'error'); return; }
-  const type = document.getElementById('msgType').value;
-  let body = { channel_id: channelId };
-  if (type === 'text') {
-    const content = document.getElementById('msgContent').value.trim();
-    if (!content) { toast('❌ اكتب رسالة', 'error'); return; }
-    body.content = content;
-    try {
-      const d = await api('/api/send-message', {method:'POST', body});
-      if(d.success) { toast('✅ تم إرسال الرسالة'); document.getElementById('msgContent').value=''; }
-      else toast('❌ فشل الإرسال: '+(d.error||''), 'error');
-    } catch(e) { toast('❌ خطأ في الاتصال', 'error'); }
-  } else {
-    const embedId = document.getElementById('msgEmbedSelect').value;
-    if (!embedId) { toast('❌ اختر إيمبد', 'error'); return; }
-    const embed = savedEmbeds.find(e=>e.id===embedId);
-    body.embed = { title: embed.title, description: embed.desc, color: parseInt((embed.color||'#5865f2').replace('#',''), 16), url: embed.url||undefined, image: embed.image?{url:embed.image}:undefined, footer: embed.footer?{text:embed.footer}:undefined };
-    try {
-      const d = await api('/api/send-embed', {method:'POST', body});
-      if(d.success) toast('✅ تم إرسال الإيمبد');
-      else toast('❌ فشل الإرسال', 'error');
-    } catch(e) { toast('❌ خطأ', 'error'); }
-  }
-}
-
-async function confirmDelete() {
-  const channelId = document.getElementById('delChannel').value;
-  if (!channelId) { toast('❌ اختر قناة', 'error'); return; }
-  const count = parseInt(document.getElementById('delCount').value)||10;
-  const userId = document.getElementById('delUserId').value.trim();
-  if (!confirm(`هل أنت متأكد من حذف ${count} رسالة${userId?' من المستخدم '+userId:''}؟`)) return;
-  try {
-    const d = await api('/api/delete-messages', {method:'POST', body:{channel_id:channelId, count, user_id:userId||undefined}});
-    if(d.success) toast('✅ تم حذف '+(d.deleted||count)+' رسالة');
-    else toast('❌ فشل الحذف: '+(d.error||''), 'error');
-  } catch(e) { toast('❌ خطأ في الاتصال', 'error'); }
-}
-
-async function lookupMember() {
-  const query = document.getElementById('modMemberId').value.trim();
-  if (!query) { toast('❌ أدخل ID أو اسم', 'error'); return; }
-  try {
-    const d = await api('/api/member-info?query='+encodeURIComponent(query));
-    if (d.member) {
-      currentModTarget = d.member;
-      document.getElementById('mi-name').textContent = d.member.username || '—';
-      document.getElementById('mi-id').textContent = 'ID: ' + d.member.discord_id;
-      const badges = document.getElementById('mi-badges');
-      badges.innerHTML = '';
-      if (d.member.verified) badges.innerHTML += '<span class="badge bg">✅ موثق</span>';
-      if (d.member.banned) badges.innerHTML += '<span class="badge br">🚫 محظور</span>';
-      if (d.member.roles) d.member.roles.forEach(r => { badges.innerHTML += `<span class="badge bb">@${esc(r)}</span>`; });
-      document.getElementById('memberInfo').style.display = 'block';
-    } else {
-      toast('❌ العضو غير موجود', 'error');
-      document.getElementById('memberInfo').style.display = 'none';
-    }
-  } catch(e) { toast('❌ خطأ في الاتصال', 'error'); }
-}
-
-function modAction(action) {
-  if (!currentModTarget) return;
-  document.getElementById('modAction').value = action;
-  document.getElementById('modTargetId').value = currentModTarget.discord_id;
-  document.getElementById('mod-target-name').textContent = currentModTarget.username || '—';
-  document.getElementById('mod-target-id').textContent = 'ID: ' + currentModTarget.discord_id;
-  document.getElementById('modReason').value = '';
-  document.getElementById('modDurationWrap').style.display = (action==='timeout'||action==='mute') ? 'block' : 'none';
-  document.getElementById('modDelDaysWrap').style.display = action==='ban' ? 'block' : 'none';
-  const labels = {warn:'⚠️ تحذير',mute:'🔇 كتم',kick:'👢 كيك',ban:'🔨 باين',timeout:'⏰ مهلة'};
-  document.getElementById('modModalTitle').textContent = (labels[action]||action) + ' — ' + (currentModTarget.username||'');
-  const btn = document.getElementById('modConfirmBtn');
-  btn.className = 'btn ' + (action==='warn'||action==='mute'?'btn-warning':'btn-danger');
-  btn.textContent = 'تأكيد ' + (labels[action]||action);
-  openModal('modModal');
-}
-
-async function executeModAction() {
-  const action = document.getElementById('modAction').value;
-  const userId = document.getElementById('modTargetId').value;
-  const reason = document.getElementById('modReason').value.trim() || 'بدون سبب';
-  const duration = parseInt(document.getElementById('modDuration').value)||10;
-  const delDays = parseInt(document.getElementById('modDelDays').value)||1;
-  const endpoints = {warn:'/api/mod/warn',mute:'/api/mod/mute',kick:'/api/mod/kick',ban:'/api/mod/ban',timeout:'/api/mod/timeout'};
-  const body = {user_id:userId, reason};
-  if (action==='timeout'||action==='mute') body.duration = duration;
-  if (action==='ban') body.delete_days = delDays;
-  try {
-    const d = await api(endpoints[action],{method:'POST',body});
-    if(d.success) { toast('✅ تم تنفيذ الإجراء بنجاح'); closeModal('modModal'); loadModLog(); }
-    else toast('❌ فشل: '+(d.error||''), 'error');
-  } catch(e) { toast('❌ خطأ في الاتصال', 'error'); }
-}
-
-function loadModLog() {
-  api('/api/mod/log?limit=20').then(d=>{
-    const tb = document.getElementById('modLogTb');
-    if (!d.log||!d.log.length) { tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-i">📋</div><div>لا يوجد سجل</div></div></td></tr>'; return; }
-    const actionBadges = {warn:'by',mute:'by',kick:'br',ban:'br',timeout:'by',unban:'bg'};
-    const actionIcons = {warn:'⚠️',mute:'🔇',kick:'👢',ban:'🔨',timeout:'⏰',unban:'✅'};
-    tb.innerHTML = d.log.map(l=>`<tr>
-      <td><strong>${esc(l.username||l.user_id)}</strong></td>
-      <td><span class="badge ${actionBadges[l.action]||'bb'}">${actionIcons[l.action]||''} ${l.action||'—'}</span></td>
-      <td>${esc(l.moderator||'—')}</td>
-      <td>${esc((l.reason||'—').substring(0,40))}</td>
-      <td>${(l.timestamp||'').slice(0,16)}</td>
-    </tr>`).join('');
-  }).catch(()=>{});
-}
-
-async function manageRole(action) {
-  const userId = document.getElementById('roleUserId').value.trim();
-  const roleId = document.getElementById('roleSelect').value;
-  if (!userId || !roleId) { toast('❌ أدخل ID العضو واختر رول', 'error'); return; }
-  try {
-    const d = await api('/api/roles/'+action, {method:'POST', body:{user_id:userId, role_id:roleId}});
-    if(d.success) toast('✅ تم '+(action==='add'?'إضافة':'إزالة')+' الرول بنجاح');
-    else toast('❌ فشل: '+(d.error||''), 'error');
-  } catch(e) { toast('❌ خطأ', 'error'); }
-}
-
-function loadTickets() {
-  ticketCategories = JSON.parse(localStorage.getItem('ticket_cats') || '[]');
-  renderTicketCats();
-  api('/api/tickets').then(d=>{
-    document.getElementById('ts-open').textContent = d.open||0;
-    document.getElementById('ts-closed').textContent = d.closed||0;
-    document.getElementById('ts-total').textContent = (d.open||0)+(d.closed||0);
-    const tb = document.getElementById('ticketsTb');
-    if (!d.tickets||!d.tickets.length) { tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-i">🎫</div><div>لا توجد تيكتات</div></div></td></tr>'; return; }
-    tb.innerHTML = d.tickets.map(t=>`<tr>
-      <td><strong>#${t.number||'—'}</strong></td>
-      <td>${esc(t.username||'—')}</td>
-      <td>${esc(t.category||'—')}</td>
-      <td><span class="badge ${t.status==='open'?'bg':'br'}">${t.status==='open'?'🟢 مفتوح':'⚫ مغلق'}</span></td>
-      <td>${(t.created_at||'').slice(0,10)}</td>
-      <td>${t.status==='open'?`<button class="btn btn-danger btn-sm" onclick="closeTicket('${t.id}')">🔒 إغلاق</button>`:''}</td>
-    </tr>`).join('');
-  }).catch(()=>{});
-}
-
-function renderTicketCats() {
-  const el = document.getElementById('ticketCats');
-  if (!ticketCategories.length) { el.innerHTML='<div class="empty"><div class="empty-i">📂</div><div>لا توجد فئات — أضف فئة جديدة</div></div>'; return; }
-  el.innerHTML = ticketCategories.map((c,i)=>`
-    <div class="cat-card">
-      <div class="cat-emoji">${c.emoji||'📂'}</div>
-      <div class="cat-info"><div class="cat-name">${esc(c.name)}</div><div class="cat-sub">${esc(c.desc||'')}</div></div>
-      <div class="ico-btn del" onclick="deleteCat(${i})">🗑️</div>
-    </div>`).join('');
-}
-
-function openCatModal() { openModal('catModal'); }
-function saveCat() {
-  const name = document.getElementById('catName').value.trim();
-  if (!name) { toast('❌ أدخل اسم الفئة', 'error'); return; }
-  ticketCategories.push({name, emoji: document.getElementById('catEmoji').value||'📂', desc: document.getElementById('catDesc').value||''});
-  localStorage.setItem('ticket_cats', JSON.stringify(ticketCategories));
-  closeModal('catModal');
-  renderTicketCats();
-  toast('✅ تمت إضافة الفئة');
-}
-function deleteCat(i) { ticketCategories.splice(i,1); localStorage.setItem('ticket_cats', JSON.stringify(ticketCategories)); renderTicketCats(); }
-
-function openTicketSetupModal() { populateAllRoleSelects(); openModal('ticketSetupModal'); }
-async function saveTicketSetup() {
-  const channelId = document.getElementById('ticketChannel').value;
-  if (!channelId) { toast('❌ اختر قناة', 'error'); return; }
-  const data = {
-    channel_id: channelId,
-    category_id: document.getElementById('ticketCatId').value||'',
-    support_role: document.getElementById('ticketSupportRole').value||'',
-    message: document.getElementById('ticketEmbedMsg').value||'افتح تيكت للحصول على المساعدة',
-    color: parseInt(document.getElementById('ticketColor').value.replace('#',''),16),
-    categories: ticketCategories,
-  };
-  try {
-    const d = await api('/api/tickets/setup', {method:'POST', body: data});
-    if(d.success) { toast('✅ تم إرسال رسالة التيكت'); closeModal('ticketSetupModal'); }
-    else toast('❌ فشل: '+(d.error||''), 'error');
-  } catch(e) { toast('❌ خطأ في الاتصال', 'error'); }
-}
-
-async function closeTicket(id) {
-  if (!confirm('إغلاق هذا التيكت؟')) return;
-  try {
-    const d = await api('/api/tickets/close', {method:'POST', body:{ticket_id:id}});
-    if(d.success) { toast('✅ تم إغلاق التيكت'); loadTickets(); }
-    else toast('❌ فشل', 'error');
-  } catch(e) { toast('❌ خطأ', 'error'); }
-}
-
+async function confirmDelete(){const ch=document.getElementById('delChannel').value;if(!ch){toast('❌ اختر قناة','error');return;}const c=parseInt(document.getElementById('delCount').value)||10;const uid=document.getElementById('delUserId').value.trim();if(!confirm(`هل أنت متأكد من حذف ${c} رسالة${uid?' من المستخدم '+uid:''}؟`))return;const d=await api('/api/delete-messages',{method:'POST',body:{channel_id:ch,count:c,user_id:uid||undefined}});if(d.success)toast('✅ تم حذف '+(d.deleted||c)+' رسالة');else toast('❌ فشل','error');}
+async function lookupMember(){const q=document.getElementById('modMemberId').value.trim();if(!q){toast('❌ أدخل ID أو اسم','error');return;}try{const d=await api('/api/member-info?query='+encodeURIComponent(q));if(d.member){currentModTarget=d.member;document.getElementById('mi-name').textContent=d.member.username||'—';document.getElementById('mi-id').textContent='ID: '+d.member.discord_id;const b=document.getElementById('mi-badges');b.innerHTML='';if(d.member.verified)b.innerHTML+='<span class="badge bg">✅ موثق</span>';if(d.member.banned)b.innerHTML+='<span class="badge br">🚫 محظور</span>';if(d.member.roles)d.member.roles.forEach(r=>{b.innerHTML+=`<span class="badge bb">@${esc(r)}</span>`;});document.getElementById('memberInfo').style.display='block';}else{toast('❌ العضو غير موجود','error');document.getElementById('memberInfo').style.display='none';}}catch(e){toast('❌ خطأ','error');}}
+function modAction(a){if(!currentModTarget)return;document.getElementById('modAction').value=a;document.getElementById('modTargetId').value=currentModTarget.discord_id;document.getElementById('mod-target-name').textContent=currentModTarget.username||'—';document.getElementById('mod-target-id').textContent='ID: '+currentModTarget.discord_id;document.getElementById('modReason').value='';document.getElementById('modDurationWrap').style.display=(a==='timeout'||a==='mute')?'block':'none';document.getElementById('modDelDaysWrap').style.display=a==='ban'?'block':'none';const lb={warn:'⚠️ تحذير',mute:'🔇 كتم',kick:'👢 كيك',ban:'🔨 باين',timeout:'⏰ مهلة'};document.getElementById('modModalTitle').textContent=(lb[a]||a)+' — '+(currentModTarget.username||'');const btn=document.getElementById('modConfirmBtn');btn.className='btn '+(a==='warn'||a==='mute'?'btn-warning':'btn-danger');btn.textContent='تأكيد '+(lb[a]||a);openModal('modModal');}
+async function executeModAction(){const a=document.getElementById('modAction').value,uid=document.getElementById('modTargetId').value,reason=document.getElementById('modReason').value.trim()||'بدون سبب',dur=parseInt(document.getElementById('modDuration').value)||10,dd=parseInt(document.getElementById('modDelDays').value)||1;const ep={warn:'/api/mod/warn',mute:'/api/mod/mute',kick:'/api/mod/kick',ban:'/api/mod/ban',timeout:'/api/mod/timeout'};const body={user_id:uid,reason};if(a==='timeout'||a==='mute')body.duration=dur;if(a==='ban')body.delete_days=dd;try{const d=await api(ep[a],{method:'POST',body});if(d.success){toast('✅ تم تنفيذ الإجراء بنجاح');closeModal('modModal');loadModLog();}else toast('❌ فشل','error');}catch(e){toast('❌ خطأ','error');}}
+function loadModLog(){api('/api/mod/log?limit=20').then(d=>{const tb=document.getElementById('modLogTb');if(!d.log||!d.log.length){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-i">📋</div><div>لا يوجد سجل</div></div></td></tr>';return;}const ab={warn:'by',mute:'by',kick:'br',ban:'br',timeout:'by',unban:'bg'};const ai={warn:'⚠️',mute:'🔇',kick:'👢',ban:'🔨',timeout:'⏰',unban:'✅'};tb.innerHTML=d.log.map(l=>`<tr><td><strong>${esc(l.username||l.user_id)}</strong></td><td><span class="badge ${ab[l.action]||'bb'}">${ai[l.action]||''} ${l.action||'—'}</span></td><td>${esc(l.moderator||'—')}</td><td>${esc((l.reason||'—').substring(0,40))}</td><td>${(l.timestamp||'').slice(0,16)}</td></tr>`).join('');}).catch(()=>{});}
+async function manageRole(a){const uid=document.getElementById('roleUserId').value.trim(),rid=document.getElementById('roleSelect').value;if(!uid||!rid){toast('❌ أدخل ID العضو واختر رول','error');return;}try{const d=await api('/api/roles/'+a,{method:'POST',body:{user_id:uid,role_id:rid}});if(d.success)toast('✅ تم '+(a==='add'?'إضافة':'إزالة')+' الرول بنجاح');else toast('❌ فشل','error');}catch(e){toast('❌ خطأ','error');}}
+function loadTickets(){ticketCategories=JSON.parse(localStorage.getItem('ticket_cats')||'[]');renderTicketCats();api('/api/tickets').then(d=>{document.getElementById('ts-open').textContent=d.open||0;document.getElementById('ts-closed').textContent=d.closed||0;document.getElementById('ts-total').textContent=(d.open||0)+(d.closed||0);const tb=document.getElementById('ticketsTb');if(!d.tickets||!d.tickets.length){tb.innerHTML='<tr><td colspan="6"><div class="empty"><div class="empty-i">🎫</div><div>لا توجد تيكتات</div></div></td></tr>';return;}tb.innerHTML=d.tickets.map(t=>`<tr><td><strong>#${t.number||'—'}</strong></td><td>${esc(t.username||'—')}</td><td>${esc(t.category||'—')}</td><td><span class="badge ${t.status==='open'?'bg':'br'}">${t.status==='open'?'🟢 مفتوح':'⚫ مغلق'}</span></td><td>${(t.created_at||'').slice(0,10)}</td><td>${t.status==='open'?'<button class="btn btn-danger btn-sm" onclick="closeTicket(\''+t.id+'\')">🔒 إغلاق</button>':''}</td></tr>`).join('');}).catch(()=>{});}
+function renderTicketCats(){const el=document.getElementById('ticketCats');if(!ticketCategories.length){el.innerHTML='<div class="empty"><div class="empty-i">📂</div><div>لا توجد فئات</div></div>';return;}el.innerHTML=ticketCategories.map((c,i)=>`<div class="cat-card"><div class="cat-emoji">${c.emoji||'📂'}</div><div class="cat-info"><div class="cat-name">${esc(c.name)}</div><div class="cat-sub">${esc(c.desc||'')}</div></div><div class="ico-btn del" onclick="deleteCat(${i})">🗑️</div></div>`).join('');}
+function openCatModal(){openModal('catModal');}
+function saveCat(){const name=document.getElementById('catName').value.trim();if(!name){toast('❌ أدخل اسم الفئة','error');return;}ticketCategories.push({name,emoji:document.getElementById('catEmoji').value||'📂',desc:document.getElementById('catDesc').value||''});localStorage.setItem('ticket_cats',JSON.stringify(ticketCategories));closeModal('catModal');renderTicketCats();toast('✅ تمت إضافة الفئة');}
+function deleteCat(i){ticketCategories.splice(i,1);localStorage.setItem('ticket_cats',JSON.stringify(ticketCategories));renderTicketCats();}
+function openTicketSetupModal(){populateAllRoleSelects();openModal('ticketSetupModal');}
+async function saveTicketSetup(){const ch=document.getElementById('ticketChannel').value;if(!ch){toast('❌ اختر قناة','error');return;}try{const d=await api('/api/tickets/setup',{method:'POST',body:{channel_id:ch,category_id:document.getElementById('ticketCatId').value||'',support_role:document.getElementById('ticketSupportRole').value||'',message:document.getElementById('ticketEmbedMsg').value||'افتح تيكت للحصول على المساعدة',color:parseInt(document.getElementById('ticketColor').value.replace('#',''),16),categories:ticketCategories}});if(d.success){toast('✅ تم إرسال رسالة التيكت');closeModal('ticketSetupModal');}else toast('❌ فشل','error');}catch(e){toast('❌ خطأ','error');}}
+async function closeTicket(id){if(!confirm('إغلاق هذا التيكت؟'))return;try{const d=await api('/api/tickets/close',{method:'POST',body:{ticket_id:id}});if(d.success){toast('✅ تم إغلاق التيكت');loadTickets();}else toast('❌ فشل','error');}catch(e){toast('❌ خطأ','error');}}
 const mLabels={exact:'مطابقة تامة',contains:'يحتوي على',starts:'يبدأ بـ'};
-function loadReplies(){
-  api('/api/auto-replies').then(d=>{
-    const el=document.getElementById('replyList');
-    if(!d.auto_replies||d.auto_replies.length===0){
-      el.innerHTML='<div class="empty"><div class="empty-i">🤖</div><div>لا توجد ردود تلقائية — أضف أول رد!</div></div>';
-      return;
-    }
-    el.innerHTML=d.auto_replies.map(r=>`
-      <div class="rc">
-        <div class="rc-info">
-          <div class="rc-tr">🔑 ${esc(r.trigger)}</div>
-          <div class="rc-re">📝 ${esc(r.response)}</div>
-          <div class="rc-meta">
-            <span class="badge ${r.enabled?'bg':'br'}">${r.enabled?'✅ مفعّل':'⏸ معطّل'}</span>
-            <span class="badge bb">${mLabels[r.match_type]||r.match_type}</span>
-            ${r.channel_id?`<span class="badge by">📢 <code>${r.channel_id}</code></span>`:''}
-          </div>
-        </div>
-        <div class="rc-act">
-          <div class="ico-btn" title="تعديل" onclick='openEditModal(${JSON.stringify(r)})'>✏️</div>
-          <div class="ico-btn" title="${r.enabled?'تعطيل':'تفعيل'}" onclick="toggleReply('${r.id}',${r.enabled})">${r.enabled?'⏸':'▶️'}</div>
-          <div class="ico-btn del" title="حذف" onclick="delReply('${r.id}')">🗑️</div>
-        </div>
-      </div>`).join('');
-  }).catch(()=>{});
-}
-function openAddModal(){
-  document.getElementById('modalTitle').textContent='➕ إضافة رد تلقائي';
-  document.getElementById('editId').value='';
-  ['arTrig','arResp'].forEach(id=>document.getElementById(id).value='');
-  if(document.getElementById('arCh')) document.getElementById('arCh').value='';
-  document.getElementById('arMatch').value='exact';
-  document.getElementById('arEn').checked=true;
-  openModal('replyModal');
-}
-function openEditModal(r){
-  document.getElementById('modalTitle').textContent='✏️ تعديل الرد التلقائي';
-  document.getElementById('editId').value=r.id||'';
-  document.getElementById('arTrig').value=r.trigger||'';
-  document.getElementById('arResp').value=r.response||'';
-  if(document.getElementById('arCh')) document.getElementById('arCh').value=r.channel_id||'';
-  document.getElementById('arMatch').value=r.match_type||'exact';
-  document.getElementById('arEn').checked=r.enabled!==false;
-  openModal('replyModal');
-}
-function saveReply(){
-  const id=document.getElementById('editId').value;
-  const data={
-    trigger:document.getElementById('arTrig').value.trim(),
-    response:document.getElementById('arResp').value.trim(),
-    channel_id:document.getElementById('arCh')?document.getElementById('arCh').value.trim():'',
-    match_type:document.getElementById('arMatch').value,
-    enabled:document.getElementById('arEn').checked,
-  };
-  if(!data.trigger||!data.response){toast('❌ أدخل الـ trigger والرد','error');return;}
-  const method=id?'PUT':'POST';
-  const path=id?`/api/auto-replies/${id}`:'/api/auto-replies';
-  api(path,{method,body:data}).then(d=>{
-    if(d.success!==false){toast(id?'✅ تم التعديل':'✅ تمت الإضافة');closeModal('replyModal');loadReplies();}
-    else toast('❌ فشل','error');
-  }).catch(()=>toast('❌ خطأ','error'));
-}
-function toggleReply(id,cur){
-  api(`/api/auto-replies/${id}`,{method:'PUT',body:{enabled:!cur}}).then(d=>{
-    if(d.success!==false){toast(cur?'⏸ تم التعطيل':'✅ تم التفعيل');loadReplies();}
-  }).catch(()=>toast('❌ خطأ','error'));
-}
-function delReply(id){
-  if(!confirm('حذف هذا الرد التلقائي؟'))return;
-  api(`/api/auto-replies/${id}`,{method:'DELETE'}).then(d=>{
-    if(d.success){toast('✅ تم الحذف');loadReplies();}
-  }).catch(()=>toast('❌ خطأ','error'));
-}
-
-function loadBans(){
-  api('/api/bans').then(d=>{
-    const tb=document.getElementById('bansTb');
-    if(!d.bans||d.bans.length===0){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-i">🚫</div><div>لا يوجد محظورون</div></div></td></tr>';return;}
-    const icons={ip:'🌐',device:'💻',canvas:'🎨'};
-    tb.innerHTML=d.bans.map(b=>`<tr>
-      <td><strong>${esc(b.username||'مجهول')}</strong></td>
-      <td><code>${b.discord_id||'-'}</code></td>
-      <td><span class="badge br">${icons[b.type]||''} ${b.type||'-'}</span></td>
-      <td>${(b.banned_at||'').slice(0,10)}</td>
-      <td><button class="btn btn-success btn-sm" onclick="unban('${b.discord_id}')">✅ رفع حظر</button></td>
-    </tr>`).join('');
-  }).catch(()=>{});
-}
-function unban(id){
-  if(!confirm('رفع الحظر؟'))return;
-  api('/api/unban',{method:'POST',body:{discord_id:id}}).then(d=>{
-    if(d.success){toast('✅ تم رفع الحظر');loadBans();loadStats();}
-  }).catch(()=>toast('❌ خطأ','error'));
-}
-
-function loadMembers(){
-  api('/api/members?limit=100').then(d=>{
-    const tb=document.getElementById('memTb');
-    if(!d.members||d.members.length===0){tb.innerHTML='<tr><td colspan="4"><div class="empty"><div class="empty-i">👥</div><div>لا يوجد أعضاء موثقون</div></div></td></tr>';return;}
-    tb.innerHTML=d.members.map(m=>`<tr>
-      <td><strong>${esc(m.username||'مجهول')}</strong></td>
-      <td><code>${m.discord_id||'-'}</code></td>
-      <td><code>${m.ip||'-'}</code></td>
-      <td>${(m.verified_at||'').slice(0,10)}</td>
-    </tr>`).join('');
-  }).catch(()=>{});
-}
-
-function loadQueue(){
-  api('/api/queue').then(d=>{
-    const tb=document.getElementById('queTb');
-    if(!d.queue||d.queue.length===0){tb.innerHTML='<tr><td colspan="3"><div class="empty"><div class="empty-i">📭</div><div>قائمة الانتظار فارغة</div></div></td></tr>';return;}
-    tb.innerHTML=d.queue.map(q=>`<tr>
-      <td><code>${q.discord_id||'-'}</code></td>
-      <td><span class="badge bb">${q.action||'-'}</span></td>
-      <td>${(q.timestamp||'').slice(0,16)}</td>
-    </tr>`).join('');
-  }).catch(()=>{});
-}
-function clearQueue(){
-  if(!confirm('مسح جميع عناصر قائمة الانتظار؟'))return;
-  api('/api/queue/clear',{method:'POST'}).then(d=>{
-    if(d.success){toast('✅ تم المسح');loadQueue();}
-  }).catch(()=>toast('❌ خطأ','error'));
-}
-
+function loadReplies(){api('/api/auto-replies').then(d=>{const el=document.getElementById('replyList');if(!d.auto_replies||d.auto_replies.length===0){el.innerHTML='<div class="empty"><div class="empty-i">🤖</div><div>لا توجد ردود تلقائية</div></div>';return;}el.innerHTML=d.auto_replies.map(r=>`<div class="rc"><div class="rc-info"><div class="rc-tr">🔑 ${esc(r.trigger)}</div><div class="rc-re">📝 ${esc(r.response)}</div><div class="rc-meta"><span class="badge ${r.enabled?'bg':'br'}">${r.enabled?'✅ مفعّل':'⏸ معطّل'}</span><span class="badge bb">${mLabels[r.match_type]||r.match_type}</span>${r.channel_id?`<span class="badge by">📢 <code>${r.channel_id}</code></span>`:''}</div></div><div class="rc-act"><div class="ico-btn" title="تعديل" onclick='openEditModal(${JSON.stringify(r)})'>✏️</div><div class="ico-btn" title="${r.enabled?'تعطيل':'تفعيل'}" onclick="toggleReply('${r.id}',${r.enabled})">${r.enabled?'⏸':'▶️'}</div><div class="ico-btn del" title="حذف" onclick="delReply('${r.id}')">🗑️</div></div></div>`).join('');}).catch(()=>{});}
+function openAddModal(){document.getElementById('modalTitle').textContent='➕ إضافة رد تلقائي';document.getElementById('editId').value='';['arTrig','arResp'].forEach(id=>document.getElementById(id).value='');if(document.getElementById('arCh'))document.getElementById('arCh').value='';document.getElementById('arMatch').value='exact';document.getElementById('arEn').checked=true;openModal('replyModal');}
+function openEditModal(r){document.getElementById('modalTitle').textContent='✏️ تعديل الرد التلقائي';document.getElementById('editId').value=r.id||'';document.getElementById('arTrig').value=r.trigger||'';document.getElementById('arResp').value=r.response||'';if(document.getElementById('arCh'))document.getElementById('arCh').value=r.channel_id||'';document.getElementById('arMatch').value=r.match_type||'exact';document.getElementById('arEn').checked=r.enabled!==false;openModal('replyModal');}
+function saveReply(){const id=document.getElementById('editId').value,data={trigger:document.getElementById('arTrig').value.trim(),response:document.getElementById('arResp').value.trim(),channel_id:document.getElementById('arCh')?document.getElementById('arCh').value.trim():'',match_type:document.getElementById('arMatch').value,enabled:document.getElementById('arEn').checked};if(!data.trigger||!data.response){toast('❌ أدخل الـ trigger والرد','error');return;}const method=id?'PUT':'POST',path=id?`/api/auto-replies/${id}`:'/api/auto-replies';api(path,{method,body:data}).then(d=>{if(d.success!==false){toast(id?'✅ تم التعديل':'✅ تمت الإضافة');closeModal('replyModal');loadReplies();}else toast('❌ فشل','error');}).catch(()=>toast('❌ خطأ','error'));}
+function toggleReply(id,cur){api(`/api/auto-replies/${id}`,{method:'PUT',body:{enabled:!cur}}).then(d=>{if(d.success!==false){toast(cur?'⏸ تم التعطيل':'✅ تم التفعيل');loadReplies();}}).catch(()=>toast('❌ خطأ','error'));}
+function delReply(id){if(!confirm('حذف هذا الرد التلقائي؟'))return;api(`/api/auto-replies/${id}`,{method:'DELETE'}).then(d=>{if(d.success){toast('✅ تم الحذف');loadReplies();}}).catch(()=>toast('❌ خطأ','error'));}
+function loadBans(){api('/api/bans').then(d=>{const tb=document.getElementById('bansTb');if(!d.bans||d.bans.length===0){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-i">🚫</div><div>لا يوجد محظورون</div></div></td></tr>';return;}tb.innerHTML=d.bans.map(b=>`<tr><td><strong>${esc(b.username||'مجهول')}</strong></td><td><code>${b.discord_id||'-'}</code></td><td><span class="badge br">${b.type||'-'}</span></td><td>${(b.banned_at||'').slice(0,10)}</td><td><button class="btn btn-success btn-sm" onclick="unban('${b.discord_id}')">✅ رفع حظر</button></td></tr>`).join('');}).catch(()=>{});}
+function unban(id){if(!confirm('رفع الحظر؟'))return;api('/api/unban',{method:'POST',body:{discord_id:id}}).then(d=>{if(d.success){toast('✅ تم رفع الحظر');loadBans();loadStats();}}).catch(()=>toast('❌ خطأ','error'));}
+function loadMembers(){api('/api/members?limit=100').then(d=>{const tb=document.getElementById('memTb');if(!d.members||d.members.length===0){tb.innerHTML='<tr><td colspan="4"><div class="empty"><div class="empty-i">👥</div><div>لا يوجد أعضاء موثقون</div></div></td></tr>';return;}tb.innerHTML=d.members.map(m=>`<tr><td><strong>${esc(m.username||'مجهول')}</strong></td><td><code>${m.discord_id||'-'}</code></td><td><code>${m.ip||'-'}</code></td><td>${(m.verified_at||'').slice(0,10)}</td></tr>`).join('');}).catch(()=>{});}
+function loadQueue(){api('/api/queue').then(d=>{const tb=document.getElementById('queTb');if(!d.queue||d.queue.length===0){tb.innerHTML='<tr><td colspan="3"><div class="empty"><div class="empty-i">📭</div><div>قائمة الانتظار فارغة</div></div></td></tr>';return;}tb.innerHTML=d.queue.map(q=>`<tr><td><code>${q.discord_id||'-'}</code></td><td><span class="badge bb">${q.action||'-'}</span></td><td>${(q.timestamp||'').slice(0,16)}</td></tr>`).join('');}).catch(()=>{});}
+function clearQueue(){if(!confirm('مسح جميع عناصر قائمة الانتظار؟'))return;api('/api/queue/clear',{method:'POST'}).then(d=>{if(d.success){toast('✅ تم المسح');loadQueue();}}).catch(()=>toast('❌ خطأ','error'));}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-if(token){
-  document.getElementById('loginWrap').classList.remove('show');
-  document.getElementById('appWrap').classList.add('show');
-  loadAll();
-  setTimeout(refreshChannels, 500);
-}
+if(token){document.getElementById('loginWrap').classList.remove('show');document.getElementById('appWrap').classList.add('show');loadAll();setTimeout(refreshChannels,500);}
 </script>
 </body>
 </html>
