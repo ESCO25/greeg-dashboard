@@ -51,6 +51,28 @@ def auth():
         return jsonify({"token": token, "guild_id": GUILD_ID})
     return jsonify({"error": "Invalid password"}), 401
 
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "ok"})
+
+# ── Discord data synced by bot ──────────────────────────────────
+
+@app.route("/api/roles-list")
+@require_auth
+def get_roles_list():
+    d = get_db()
+    roles = list(d["discord_roles"].find({}, {"_id": 0}).sort("position", -1))
+    return jsonify({"roles": roles})
+
+@app.route("/api/channels")
+@require_auth
+def get_channels():
+    d = get_db()
+    channels = list(d["discord_channels"].find({}, {"_id": 0}))
+    return jsonify({"channels": channels})
+
+# ── Stats ───────────────────────────────────────────────────────
+
 @app.route("/api/stats")
 @require_auth
 def stats():
@@ -59,6 +81,8 @@ def stats():
     members_count = d["members"].count_documents({"guild_id": GUILD_ID})
     bans_count = d["bans"].count_documents({"guild_id": GUILD_ID})
     pending_queue = d["verification_queue"].count_documents({})
+    tickets = list(d["tickets"].find({}, {"_id": 0}))
+    auto_replies = d["auto_replies"].count_documents({"guild_id": GUILD_ID})
     return jsonify({
         "requested": vs.get("requested", 0),
         "approved": vs.get("approved", 0),
@@ -66,7 +90,12 @@ def stats():
         "verified_members": members_count,
         "bans": bans_count,
         "pending_queue": pending_queue,
+        "open_tickets": sum(1 for t in tickets if t.get("status") == "open"),
+        "closed_tickets": sum(1 for t in tickets if t.get("status") == "closed"),
+        "auto_replies": auto_replies,
     })
+
+# ── Verify Settings ─────────────────────────────────────────────
 
 @app.route("/api/verify-settings", methods=["GET"])
 @require_auth
@@ -98,6 +127,8 @@ def update_verify_settings():
         )
     return jsonify({"success": True, "updated": update})
 
+# ── Bans ────────────────────────────────────────────────────────
+
 @app.route("/api/bans")
 @require_auth
 def get_bans():
@@ -128,6 +159,8 @@ def unban():
     result = d["bans"].delete_many({"discord_id": str(discord_id), "guild_id": GUILD_ID})
     return jsonify({"success": True, "deleted": result.deleted_count})
 
+# ── Queue ───────────────────────────────────────────────────────
+
 @app.route("/api/queue", methods=["GET"])
 @require_auth
 def get_queue():
@@ -150,6 +183,8 @@ def clear_queue():
     result = d["verification_queue"].delete_many({})
     return jsonify({"success": True, "deleted": result.deleted_count})
 
+# ── Members ─────────────────────────────────────────────────────
+
 @app.route("/api/members")
 @require_auth
 def get_members():
@@ -166,6 +201,33 @@ def get_members():
             "verified_at": str(m.get("verified_at", ""))[:19],
         })
     return jsonify({"members": result, "count": d["members"].count_documents({"guild_id": GUILD_ID})})
+
+@app.route("/api/member-info")
+@require_auth
+def member_info():
+    query = request.args.get("query", "").strip()
+    if not query:
+        return jsonify({"member": None})
+    d = get_db()
+    member = None
+    if query.isdigit():
+        member = d["members"].find_one({"discord_id": query, "guild_id": GUILD_ID})
+    if not member:
+        member = d["members"].find_one({"username": query, "guild_id": GUILD_ID})
+    if not member:
+        return jsonify({"member": None})
+    banned = d["bans"].find_one({"discord_id": member["discord_id"], "guild_id": GUILD_ID}) is not None
+    return jsonify({
+        "member": {
+            "discord_id": member.get("discord_id"),
+            "username": member.get("username", query),
+            "verified": True,
+            "banned": banned,
+            "roles": [],
+        }
+    })
+
+# ── Auto Replies ────────────────────────────────────────────────
 
 @app.route("/api/auto-replies", methods=["GET"])
 @require_auth
@@ -228,6 +290,8 @@ def update_auto_reply(reply_id):
         )
     return jsonify({"success": True, "updated": update})
 
+# ── Config ──────────────────────────────────────────────────────
+
 @app.route("/api/config")
 @require_auth
 def get_config():
@@ -258,6 +322,121 @@ def update_config():
             upsert=True
         )
     return jsonify({"success": True, "updated": update})
+
+# ── Tickets ─────────────────────────────────────────────────────
+
+@app.route("/api/tickets", methods=["GET"])
+@require_auth
+def get_tickets():
+    d = get_db()
+    tickets = list(d["tickets"].find({}, {"_id": 0}).sort("created_at", -1).limit(50))
+    return jsonify({
+        "open": sum(1 for t in tickets if t.get("status") == "open"),
+        "closed": sum(1 for t in tickets if t.get("status") == "closed"),
+        "tickets": tickets,
+    })
+
+@app.route("/api/tickets/setup", methods=["POST"])
+@require_auth
+def tickets_setup():
+    d = get_db()
+    data = request.get_json() or {}
+    d["ticket_settings"].update_one(
+        {"guild_id": GUILD_ID},
+        {"$set": data},
+        upsert=True
+    )
+    return jsonify({"success": True})
+
+@app.route("/api/tickets/close", methods=["POST"])
+@require_auth
+def close_ticket():
+    d = get_db()
+    data = request.get_json() or {}
+    ticket_id = data.get("ticket_id", "")
+    if not ticket_id:
+        return jsonify({"error": "ticket_id required"}), 400
+    try:
+        result = d["tickets"].update_one(
+            {"id": ticket_id},
+            {"$set": {"status": "closed", "closed_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        if result.matched_count:
+            return jsonify({"success": True})
+        return jsonify({"error": "Ticket not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ── Mod Log ─────────────────────────────────────────────────────
+
+@app.route("/api/mod/log")
+@require_auth
+def get_mod_log():
+    d = get_db()
+    limit = min(int(request.args.get("limit", 20)), 100)
+    log = list(d["mod_log"].find({}, {"_id": 0}).sort("timestamp", -1).limit(limit))
+    return jsonify({"log": log})
+
+@app.route("/api/mod/<action>", methods=["POST"])
+@require_auth
+def mod_action(action):
+    if action not in ("warn", "mute", "kick", "ban", "timeout"):
+        return jsonify({"error": "Invalid action"}), 400
+    d = get_db()
+    data = request.get_json() or {}
+    entry = {
+        "user_id": data.get("user_id", ""),
+        "username": data.get("username", "Unknown"),
+        "action": action,
+        "moderator": "Dashboard",
+        "reason": data.get("reason", "No reason"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    d["mod_log"].insert_one(entry)
+    # cap at 200
+    total = d["mod_log"].count_documents({})
+    if total > 200:
+        oldest = d["mod_log"].find().sort("timestamp", 1).limit(total - 200)
+        ids = [o["_id"] for o in oldest]
+        d["mod_log"].delete_many({"_id": {"$in": ids}})
+    if action == "ban":
+        d["bans"].insert_one({
+            "discord_id": data.get("user_id", ""),
+            "username": data.get("username", "Unknown"),
+            "type": "discord",
+            "guild_id": GUILD_ID,
+            "banned_at": datetime.now(timezone.utc).isoformat(),
+        })
+    return jsonify({"success": True})
+
+# ── Discord-bot-required endpoints (placeholder) ────────────────
+
+@app.route("/api/send-message", methods=["POST"])
+@require_auth
+def send_message():
+    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+
+@app.route("/api/send-embed", methods=["POST"])
+@require_auth
+def send_embed():
+    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+
+@app.route("/api/delete-messages", methods=["POST"])
+@require_auth
+def delete_messages():
+    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+
+@app.route("/api/roles/add", methods=["POST"])
+@require_auth
+def roles_add():
+    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+
+@app.route("/api/roles/remove", methods=["POST"])
+@require_auth
+def roles_remove():
+    return jsonify({"error": "Discord bot not connected to this API server"}), 503
+
+# ── Bot roles (stored in MongoDB) ───────────────────────────────
 
 @app.route("/api/roles")
 @require_auth
@@ -305,10 +484,6 @@ def delete_role(role_id):
     d["bot_roles"].delete_one({"_id": ObjectId(role_id), "guild_id": GUILD_ID})
     return jsonify({"success": True})
 
-@app.route("/api/health")
-def health():
-    return jsonify({"status": "ok"})
-
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Not found"}), 404
@@ -316,4 +491,3 @@ def not_found(e):
 @app.errorhandler(500)
 def server_error(e):
     return jsonify({"error": "Server error"}), 500
-
