@@ -657,7 +657,7 @@ function go(name, el) {
   if(name==='embeds') loadEmbedList();
   if(name==='tickets') loadTickets();
   if(name==='moderation') loadModLog();
-  if(name==='roles') { renderRolesList(); populateAllRoleSelects(); }
+  if(name==='roles') { loadRoles(); }
   if(name==='messages') populateEmbedSelectForMsg();
 }
 function openSb(){document.getElementById('sidebar').classList.add('open');document.getElementById('sbOv').classList.add('show');}
@@ -834,6 +834,17 @@ function saveReply(){const id=document.getElementById('editId').value,data={trig
 function toggleReply(id,cur){api(`/api/auto-replies/${id}`,{method:'PUT',body:{enabled:!cur}}).then(d=>{if(d.success!==false){toast(cur?'⏸ تم التعطيل':'✅ تم التفعيل');loadReplies();}}).catch(()=>toast('❌ خطأ','error'));}
 function delReply(id){if(!confirm('حذف هذا الرد التلقائي؟'))return;api(`/api/auto-replies/${id}`,{method:'DELETE'}).then(d=>{if(d.success){toast('✅ تم الحذف');loadReplies();}}).catch(()=>toast('❌ خطأ','error'));}
 function loadBans(){api('/api/bans').then(d=>{const tb=document.getElementById('bansTb');if(!d.bans||d.bans.length===0){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-i">🚫</div><div>لا يوجد محظورون</div></div></td></tr>';return;}tb.innerHTML=d.bans.map(b=>`<tr><td><strong>${esc(b.username||'مجهول')}</strong></td><td><code>${b.discord_id||'-'}</code></td><td><span class="badge br">${b.type||'-'}</span></td><td>${(b.banned_at||'').slice(0,10)}</td><td><button class="btn btn-success btn-sm" onclick="unban('${b.discord_id}')">✅ رفع حظر</button></td></tr>`).join('');}).catch(()=>{});}
+async function loadRoles(){
+  const el=document.getElementById('rolesList');
+  if(!el)return;
+  el.innerHTML='<div class="empty"><div class="empty-i">🎭</div><div>جاري تحميل الرولات...</div></div>';
+  try {
+    const d=await api('/api/roles-list');
+    cachedRoles=d.roles||[];
+    renderRolesList();
+    populateAllRoleSelects();
+  } catch(e){el.innerHTML='<div class="empty"><div class="empty-i">⚠️</div><div>تعذّر تحميل الرولات</div></div>';}
+}
 function unban(id){if(!confirm('رفع الحظر؟'))return;api('/api/unban',{method:'POST',body:{discord_id:id}}).then(d=>{if(d.success){toast('✅ تم رفع الحظر');loadBans();loadStats();}}).catch(()=>toast('❌ خطأ','error'));}
 function loadMembers(){api('/api/members?limit=100').then(d=>{const tb=document.getElementById('memTb');if(!d.members||d.members.length===0){tb.innerHTML='<tr><td colspan="4"><div class="empty"><div class="empty-i">👥</div><div>لا يوجد أعضاء موثقون</div></div></td></tr>';return;}tb.innerHTML=d.members.map(m=>`<tr><td><strong>${esc(m.username||'مجهول')}</strong></td><td><code>${m.discord_id||'-'}</code></td><td><code>${m.ip||'-'}</code></td><td>${(m.verified_at||'').slice(0,10)}</td></tr>`).join('');}).catch(()=>{});}
 function loadQueue(){api('/api/queue').then(d=>{const tb=document.getElementById('queTb');if(!d.queue||d.queue.length===0){tb.innerHTML='<tr><td colspan="3"><div class="empty"><div class="empty-i">📭</div><div>قائمة الانتظار فارغة</div></div></td></tr>';return;}tb.innerHTML=d.queue.map(q=>`<tr><td><code>${q.discord_id||'-'}</code></td><td><span class="badge bb">${q.action||'-'}</span></td><td>${(q.timestamp||'').slice(0,16)}</td></tr>`).join('');}).catch(()=>{});}
