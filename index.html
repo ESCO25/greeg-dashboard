@@ -837,13 +837,19 @@ function loadBans(){api('/api/bans').then(d=>{const tb=document.getElementById('
 async function loadRoles(){
   const el=document.getElementById('rolesList');
   if(!el)return;
-  el.innerHTML='<div class="empty"><div class="empty-i">🎭</div><div>جاري تحميل الرولات...</div></div>';
+  el.innerHTML='<div class="empty"><div class="empty-i">🎭</div><div>جاري تحميل الرولات...</div><div class="loading" style="margin:8px auto;display:block"></div></div>';
   try {
     const d=await api('/api/roles-list');
     cachedRoles=d.roles||[];
-    renderRolesList();
-    populateAllRoleSelects();
-  } catch(e){el.innerHTML='<div class="empty"><div class="empty-i">⚠️</div><div>تعذّر تحميل الرولات</div></div>';}
+    if(cachedRoles.length){
+      renderRolesList();
+      populateAllRoleSelects();
+    } else {
+      el.innerHTML='<div class="empty"><div class="empty-i">🎭</div><div>السيرفر لا يحتوي على رولات</div></div>';
+    }
+  } catch(e){
+    el.innerHTML='<div class="empty"><div class="empty-i">⚠️</div><div>تعذّر الاتصال بالـ API</div><div style="color:var(--text3);font-size:11px;margin-top:6px">تأكد من أن البوت يعمل</div></div>';
+  }
 }
 function unban(id){if(!confirm('رفع الحظر؟'))return;api('/api/unban',{method:'POST',body:{discord_id:id}}).then(d=>{if(d.success){toast('✅ تم رفع الحظر');loadBans();loadStats();}}).catch(()=>toast('❌ خطأ','error'));}
 function loadMembers(){api('/api/members?limit=100').then(d=>{const tb=document.getElementById('memTb');if(!d.members||d.members.length===0){tb.innerHTML='<tr><td colspan="4"><div class="empty"><div class="empty-i">👥</div><div>لا يوجد أعضاء موثقون</div></div></td></tr>';return;}tb.innerHTML=d.members.map(m=>`<tr><td><strong>${esc(m.username||'مجهول')}</strong></td><td><code>${m.discord_id||'-'}</code></td><td><code>${m.ip||'-'}</code></td><td>${(m.verified_at||'').slice(0,10)}</td></tr>`).join('');}).catch(()=>{});}
