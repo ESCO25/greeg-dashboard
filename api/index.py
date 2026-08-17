@@ -481,15 +481,23 @@ def send_embed():
     if not channel_id:
         return jsonify({"error": "channel_id مطلوب"}), 400
 
+    embed_data = data.get("embed", data)  # يدعم الشكلين: متداخل تحت "embed" أو مباشر
+    image_val = embed_data.get("image", "")
+    if isinstance(image_val, dict):
+        image_val = image_val.get("url", "")
+    footer_val = embed_data.get("footer", "")
+    if isinstance(footer_val, dict):
+        footer_val = footer_val.get("text", "")
+
     cmd_id = queue_bot_command("send_embed", {
         "channel_id": str(channel_id),
-        "title": data.get("title", ""),
-        "description": data.get("description", ""),
-        "color": data.get("color", 0x5865f2),
-        "footer": data.get("footer", ""),
-        "image": data.get("image", ""),
-        "thumbnail": data.get("thumbnail", ""),
-        "fields": data.get("fields", []),
+        "title": embed_data.get("title", ""),
+        "description": embed_data.get("description", ""),
+        "color": embed_data.get("color", 0x5865f2),
+        "footer": footer_val,
+        "image": image_val,
+        "thumbnail": embed_data.get("thumbnail", ""),
+        "fields": embed_data.get("fields", []),
     })
     return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
 
