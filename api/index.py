@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from pymongo import MongoClient, ASCENDING
 from bson import ObjectId
@@ -8,6 +8,7 @@ import os
 import hashlib
 import secrets
 import hmac
+import requests
 
 app = Flask(__name__, static_folder=None)
 CORS(app)
@@ -645,9 +646,9 @@ CONTEST_DEFAULTS = {
     "title": "💵 مشاركة في المسابقة",
     "description": "This form will be submitted to آلمنظّم. لا تشارك أي معلومات حساسة.",
     "questions": [
-        {"label": "هل أنت فاهم أنه يحق لك مشاركة واحدة فقط؟", "required": True},
-        {"label": "ارسل معرفك الخاص بقريتك", "required": True},
-        {"label": "أي ملاحظة تريد إضافتها؟", "required": False},
+        {"label": "هل أنت فاهم أنه يحق لك مشاركة واحدة فقط؟", "required": True, "type": "text"},
+        {"label": "ارسل معرفك الخاص بقريتك", "required": True, "type": "text"},
+        {"label": "أي ملاحظة تريد إضافتها؟", "required": False, "type": "text"},
     ],
     "image_required": True,
     "image_prompt": "📸 أرسل لي الآن صورة لقطة الشاشة المطلوبة للمشاركة، خلال {timeout} ثانية.",
@@ -707,7 +708,12 @@ def update_contest_settings_api():
             label = str(q.get("label", "")).strip()
             if not label:
                 return jsonify({"error": "كل سؤال يحتاج نصًا"}), 400
-            clean_qs.append({"label": label[:45], "required": bool(q.get("required", True))})
+            q_type = q.get("type") if q.get("type") in ("text", "number") else "text"
+            clean_qs.append({
+                "label": label[:45],
+                "required": bool(q.get("required", True)),
+                "type": q_type,
+            })
         update["questions"] = clean_qs
 
     if update:
@@ -761,6 +767,8 @@ def get_contest_entries():
             "user_id": e.get("user_id"),
             "username": e.get("username", "Unknown"),
             "answers": e.get("answers", {}),
+            "rank_number": e.get("rank_number"),
+            "has_image": bool(e.get("image_url")),
             "channel_id": e.get("channel_id"),
             "message_id": e.get("message_id"),
             "created_at": str(created)[:19],
@@ -769,6 +777,34 @@ def get_contest_entries():
         "entries": result,
         "count": d["contest_entries"].count_documents({"guild_id": GUILD_ID}),
     })
+
+@app.route("/api/contest/entries/<entry_id>/image", methods=["GET"])
+@require_auth
+def get_contest_entry_image(entry_id):
+    """
+    يجلب صورة المشاركة من CDN ديسكورد ويمررها للمتصفح مباشرة
+    (لتفادي مشاكل CORS/انتهاء صلاحية الرابط عند التحميل المباشر من الفرونت).
+    """
+    d = get_db()
+    try:
+        entry = d["contest_entries"].find_one({"_id": ObjectId(entry_id), "guild_id": GUILD_ID})
+    except InvalidId:
+        return jsonify({"error": "معرف غير صالح"}), 400
+    if not entry or not entry.get("image_url"):
+        return jsonify({"error": "لا توجد صورة لهذه المشاركة"}), 404
+
+    try:
+        r = requests.get(entry["image_url"], timeout=10)
+        r.raise_for_status()
+    except requests.RequestException:
+        return jsonify({"error": "تعذر تحميل الصورة (قد يكون رابط ديسكورد منتهي الصلاحية)"}), 502
+
+    content_type = r.headers.get("Content-Type", "image/png")
+    return Response(
+        r.content,
+        mimetype=content_type,
+        headers={"Content-Disposition": f'attachment; filename="contest_{entry_id}.png"'},
+    )
 
 @app.route("/api/contest/entries/<entry_id>", methods=["DELETE"])
 @require_auth
