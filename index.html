@@ -489,7 +489,7 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
 
       <div class="panel" id="panel-members">
         <div class="ph"><div><div class="ph-t">👥 الأعضاء الموثقون</div><div class="ph-sub">قائمة الأعضاء الذين أكملوا التحقق</div></div></div>
-        <div class="box"><div class="t-wrap"><table><thead><tr><th>الاسم</th><th>Discord ID</th><th>IP</th><th>تاريخ التوثيق</th></tr></thead><tbody id="memTb"></tbody></table></div></div>
+        <div class="box"><div class="t-wrap"><table><thead><tr><th>الاسم</th><th>Discord ID</th><th>IP</th><th>تاريخ التوثيق</th><th>الإجراء</th></tr></thead><tbody id="memTb"></tbody></table></div></div>
       </div>
 
       <div class="panel" id="panel-queue">
@@ -1211,7 +1211,8 @@ async function loadRoles(){
   }
 }
 function unban(id){if(!confirm('رفع الحظر؟'))return;api('/api/unban',{method:'POST',body:{discord_id:id}}).then(d=>{if(d.success){toast('✅ تم رفع الحظر');loadBans();loadStats();}}).catch(()=>toast('❌ خطأ','error'));}
-function loadMembers(){api('/api/members?limit=100').then(d=>{const tb=document.getElementById('memTb');if(!d.members||d.members.length===0){tb.innerHTML='<tr><td colspan="4"><div class="empty"><div class="empty-i">👥</div><div>لا يوجد أعضاء موثقون</div></div></td></tr>';return;}tb.innerHTML=d.members.map(m=>`<tr><td><strong>${esc(m.username||'مجهول')}</strong></td><td><code>${m.discord_id||'-'}</code></td><td><code>${m.ip||'-'}</code></td><td>${(m.verified_at||'').slice(0,10)}</td></tr>`).join('');}).catch(()=>{});}
+function loadMembers(){api('/api/members?limit=100').then(d=>{const tb=document.getElementById('memTb');if(!d.members||d.members.length===0){tb.innerHTML='<tr><td colspan="5"><div class="empty"><div class="empty-i">👥</div><div>لا يوجد أعضاء موثقون</div></div></td></tr>';return;}tb.innerHTML=d.members.map(m=>`<tr><td><strong>${esc(m.username||'مجهول')}</strong></td><td><code>${m.discord_id||'-'}</code></td><td><code>${m.ip||'-'}</code></td><td>${(m.verified_at||'').slice(0,10)}</td><td><button class="btn btn-danger btn-sm" onclick="deleteMember('${m.discord_id}')">🗑️ حذف التوثيق</button></td></tr>`).join('');}).catch(()=>{});}
+function deleteMember(id){if(!id||!confirm('حذف توثيق هذا العضو؟ سيرجع لحالة غير موثق بالسيرفر.'))return;api('/api/members/'+id,{method:'DELETE'}).then(d=>{if(d.success){toast('✅ تم حذف التوثيق');loadMembers();loadStats();}else{toast('❌ '+(d.error||'خطأ'),'error');}}).catch(()=>toast('❌ خطأ','error'));}
 function loadQueue(){api('/api/queue').then(d=>{const tb=document.getElementById('queTb');if(!d.queue||d.queue.length===0){tb.innerHTML='<tr><td colspan="3"><div class="empty"><div class="empty-i">📭</div><div>قائمة الانتظار فارغة</div></div></td></tr>';return;}tb.innerHTML=d.queue.map(q=>`<tr><td><code>${q.discord_id||'-'}</code></td><td><span class="badge bb">${q.action||'-'}</span></td><td>${(q.timestamp||'').slice(0,16)}</td></tr>`).join('');}).catch(()=>{});}
 function clearQueue(){if(!confirm('مسح جميع عناصر قائمة الانتظار؟'))return;api('/api/queue/clear',{method:'POST'}).then(d=>{if(d.success){toast('✅ تم المسح');loadQueue();}}).catch(()=>toast('❌ خطأ','error'));}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
