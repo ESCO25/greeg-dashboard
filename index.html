@@ -1120,10 +1120,11 @@ async function saveContestSetup(){
 }
 async function sendContestPanel(){
   const ch = document.getElementById('ccPanelCh') ? document.getElementById('ccPanelCh').value : '';
+  toast('⏳ جارٍ التحقق من تنفيذ البوت للأمر...', 'info');
   try{
     const d = await api('/api/contest/panel',{method:'POST',body: ch ? {panel_channel_id:ch} : {}});
-    if (d.success) toast('✅ تم إرسال الأمر للبوت — بيظهر الزر خلال ثوانٍ');
-    else toast('❌ '+(d.error||'فشل الإرسال'), 'error');
+    if (d.success) toast('✅ '+(d.note || 'تم نشر/تحديث اللوحة فعليًا'));
+    else toast('❌ '+(d.error||'فشل الإرسال — تحقق من صلاحيات البوت بهذه القناة'), 'error');
   }catch(e){ toast('❌ خطأ في الاتصال', 'error'); }
 }
 let contestEntriesRaw = [];
