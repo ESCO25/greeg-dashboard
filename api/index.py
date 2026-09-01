@@ -731,7 +731,12 @@ def send_contest_panel():
     """
     يطلب من البوت نشر (أو تحديث) لوحة زر «مشاركة في المسابقة» في الروم المحدد.
     البوت (cogs/contest.py) يستمع لهذا الأمر وينفذه فعليًا.
+    ننتظر هنا رد البوت الفعلي (بدل الرجوع فورًا) عشان نعرض للمستخدم
+    النتيجة الحقيقية — مثلاً لو القناة ماعندها صلاحية، أو نوعها غير مدعوم.
     """
+    import time
+    from bson import ObjectId as _OID
+
     d = get_db()
     data = request.get_json() or {}
     panel_channel_id = data.get("panel_channel_id")
@@ -753,7 +758,27 @@ def send_contest_panel():
         "channel_id": str(panel_channel_id),
         "image_url": settings.get("image_url"),
     })
-    return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
+
+    # ── ننتظر لحد 12 ثانية (البوت يفحص كل 5 ثوانٍ) حتى ينفّذ الأمر فعليًا ──
+    deadline = time.time() + 12
+    while time.time() < deadline:
+        cmd = d["bot_commands"].find_one({"_id": _OID(cmd_id)})
+        if cmd and cmd.get("status") == "done":
+            return jsonify({"success": True, "command_id": cmd_id, "note": "✅ تم نشر/تحديث اللوحة فعليًا"})
+        if cmd and cmd.get("status") == "error":
+            return jsonify({
+                "success": False,
+                "command_id": cmd_id,
+                "error": f"❌ فشل البوت بتنفيذ الأمر: {cmd.get('error', 'خطأ غير معروف')}"
+            }), 502
+        time.sleep(0.5)
+
+    # لسه pending بعد 12 ثانية — يعني البوت غالبًا مو متصل (offline) أو بطيء جدًا
+    return jsonify({
+        "success": False,
+        "command_id": cmd_id,
+        "error": "⏳ البوت لم يستجب خلال 12 ثانية — تأكد إنه شغّال (Online) وحاول تاني."
+    }), 504
 
 @app.route("/api/contest/entries", methods=["GET"])
 @require_auth
