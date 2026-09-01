@@ -654,6 +654,7 @@ CONTEST_DEFAULTS = {
     "image_prompt": "📸 أرسل لي الآن صورة لقطة الشاشة المطلوبة للمشاركة، خلال {timeout} ثانية.",
     "upload_timeout": 180,
     "color": 0x2ecc71,
+    "image_url": None,
     "target_channel_id": None,
     "panel_channel_id": None,
     "panel_message_id": None,
@@ -677,7 +678,7 @@ def update_contest_settings_api():
     data = request.get_json() or {}
     update = {}
 
-    for key in ["title", "description", "image_prompt", "target_channel_id", "panel_channel_id"]:
+    for key in ["title", "description", "image_prompt", "image_url", "target_channel_id", "panel_channel_id"]:
         if key in data:
             update[key] = str(data[key]) if data[key] is not None else None
 
@@ -750,6 +751,7 @@ def send_contest_panel():
 
     cmd_id = queue_bot_command("send_contest_panel", {
         "channel_id": str(panel_channel_id),
+        "image_url": settings.get("image_url"),
     })
     return jsonify({"success": True, "command_id": cmd_id, "note": "تم إرسال الأمر للبوت"})
 
