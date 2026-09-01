@@ -393,6 +393,7 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
             <div class="sr"><div class="sr-ico">📥</div><div class="sr-inf"><div class="sr-lbl">روم الاستقبال</div></div><strong id="cc-target" style="font-size:12px">—</strong></div>
             <div class="sr"><div class="sr-ico">📋</div><div class="sr-inf"><div class="sr-lbl">روم اللوحة</div></div><strong id="cc-panel" style="font-size:12px">—</strong></div>
             <div class="sr"><div class="sr-ico">🖼️</div><div class="sr-inf"><div class="sr-lbl">الصورة إجبارية</div></div><strong id="cc-imgreq">—</strong></div>
+            <div class="sr"><div class="sr-ico">🎞️</div><div class="sr-inf"><div class="sr-lbl">صورة اللوحة</div></div><strong id="cc-panelimg">—</strong></div>
             <div class="sr"><div class="sr-ico">📨</div><div class="sr-inf"><div class="sr-lbl">إجمالي المشاركات</div></div><strong id="cc-count">—</strong></div>
             <button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="sendContestPanel()">📤 نشر / تحديث لوحة الزر</button>
           </div>
@@ -642,6 +643,8 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
       <div class="fg"><label>⏱️ مهلة رفع الصورة (ثانية) — بديل فقط</label><input type="number" id="ccTimeout" value="180" min="30" max="900"></div>
     </div>
     <div class="tog-wrap" style="margin-bottom:14px"><label class="tog"><input type="checkbox" id="ccImgReq" checked><span class="tog-sl"></span></label><span class="tog-lbl">📷 الصورة إجبارية للمشاركة</span></div>
+    <div class="fg"><label>🖼️ صورة لوحة المسابقة (اختياري)</label><input type="text" id="ccImageUrl" placeholder="https://... — رابط صورة مباشر (رفعها بديسكورد أو أي مستضيف صور)" oninput="updateContestImagePreview()"></div>
+    <img id="ccImagePreview" style="display:none;width:100%;max-height:160px;object-fit:cover;border-radius:var(--radius-sm);border:2px solid var(--border2);margin:-4px 0 14px">
     <div class="modal-f"><button class="btn btn-outline" onclick="closeModal('contestSetupModal')">إلغاء</button><button class="btn btn-primary" onclick="saveContestSetup()">💾 حفظ الإعدادات</button></div>
   </div>
 </div>
@@ -1055,9 +1058,12 @@ function loadContest(){
     document.getElementById('ccColor').value = '#'+(Number(d.color||0x2ecc71)).toString(16).padStart(6,'0');
     document.getElementById('ccTimeout').value = d.upload_timeout || 180;
     document.getElementById('ccImgReq').checked = d.image_required !== false;
+    document.getElementById('ccImageUrl').value = d.image_url || '';
+    updateContestImagePreview();
     document.getElementById('cc-target').textContent = d.target_channel_id ? ('#'+d.target_channel_id) : 'لم يُحدد';
     document.getElementById('cc-panel').textContent = d.panel_channel_id ? ('#'+d.panel_channel_id) : 'لم يُحدد';
     document.getElementById('cc-imgreq').textContent = d.image_required !== false ? '✅ نعم' : '❌ لا';
+    document.getElementById('cc-panelimg').textContent = d.image_url ? '✅ محددة' : '— غير محددة';
     contestQuestions = d.questions || [];
     if (document.getElementById('ccTargetCh')) document.getElementById('ccTargetCh').value = d.target_channel_id || '';
     if (document.getElementById('ccPanelCh')) document.getElementById('ccPanelCh').value = d.panel_channel_id || '';
@@ -1087,6 +1093,14 @@ async function saveContestQuestions(){
   }catch(e){ toast('❌ خطأ في الاتصال', 'error'); }
 }
 function openContestSetupModal(){ populateAllChannelSelects(); openModal('contestSetupModal'); }
+function updateContestImagePreview(){
+  const url = document.getElementById('ccImageUrl').value.trim();
+  const img = document.getElementById('ccImagePreview');
+  if (!url) { img.style.display = 'none'; img.src = ''; return; }
+  img.src = url;
+  img.onload = () => { img.style.display = 'block'; };
+  img.onerror = () => { img.style.display = 'none'; };
+}
 async function saveContestSetup(){
   const body = {
     title: document.getElementById('ccTitle').value.trim() || '💵 مشاركة في المسابقة',
@@ -1096,6 +1110,7 @@ async function saveContestSetup(){
     color: parseInt(document.getElementById('ccColor').value.replace('#',''),16),
     upload_timeout: parseInt(document.getElementById('ccTimeout').value) || 180,
     image_required: document.getElementById('ccImgReq').checked,
+    image_url: document.getElementById('ccImageUrl').value.trim() || null,
   };
   try{
     const d = await api('/api/contest/settings',{method:'POST',body});
