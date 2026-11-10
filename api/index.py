@@ -923,6 +923,116 @@ def delete_role(role_id):
     d["bot_roles"].delete_one({"_id": ObjectId(role_id), "guild_id": GUILD_ID})
     return jsonify({"success": True})
 
+# ── AutoMod (الرقابة التلقائية) ─────────────────────────────────
+# الإعدادات تُحفظ في automod_settings والبوت (cogs/automod.py) يقرأها من نفس المكان.
+import re
+import unicodedata
+from copy import deepcopy
+
+AUTOMOD_DEFAULTS = {
+    "enabled": False,
+    "channel_ids": [],
+    "words": [],
+    "match_mode": "contains",
+    "punishment": "none",
+    "timeout_minutes": 10,
+    "delete_message": True,
+    "reply_message": "⚠️ {member} رسالتك تحتوي على كلمة ممنوعة، التزم بقوانين السيرفر.",
+    "reply_delete_after": 10,
+    "log_channel_id": "",
+}
+_AM_TASHKEEL = re.compile(r"[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]")
+_AM_INVISIBLE = re.compile(r"[\u200b-\u200f\u202a-\u202e\u2060\ufeff]")
+_AM_REPEAT = re.compile(r"(.)\1+")
+
+def _am_normalize(text):
+    text = unicodedata.normalize("NFKC", str(text)).lower()
+    text = _AM_INVISIBLE.sub("", text)
+    text = _AM_TASHKEEL.sub("", text)
+    for a, b in (("أ", "ا"), ("إ", "ا"), ("آ", "ا"), ("ى", "ي"), ("ة", "ه"), ("ؤ", "و"), ("ئ", "ي")):
+        text = text.replace(a, b)
+    return _AM_REPEAT.sub(r"\1", text)
+
+def _am_sanitize(body):
+    update = {}
+    if "enabled" in body:
+        update["enabled"] = bool(body["enabled"])
+    if "channel_ids" in body:
+        ids = body["channel_ids"]
+        if not isinstance(ids, list):
+            return None, "channel_ids لازم تكون قائمة"
+        update["channel_ids"] = list(dict.fromkeys(str(i) for i in ids if str(i).isdigit()))[:100]
+    if "words" in body:
+        words = body["words"]
+        if not isinstance(words, list):
+            return None, "words لازم تكون قائمة"
+        clean, seen = [], set()
+        for w in words:
+            w = str(w).strip().lstrip("#").strip()
+            key = _am_normalize(w)
+            if not w or not key or len(w) > 60 or key in seen:
+                continue
+            seen.add(key)
+            clean.append(w)
+        update["words"] = clean[:500]
+    if "match_mode" in body:
+        if body["match_mode"] not in ("contains", "word"):
+            return None, "نوع المطابقة غير صالح"
+        update["match_mode"] = body["match_mode"]
+    if "punishment" in body:
+        if body["punishment"] not in ("none", "timeout", "kick", "ban"):
+            return None, "العقوبة غير صالحة"
+        update["punishment"] = body["punishment"]
+    if "timeout_minutes" in body:
+        try:
+            update["timeout_minutes"] = max(1, min(int(body["timeout_minutes"]), 40320))
+        except (TypeError, ValueError):
+            return None, "مدة التايم أوت لازم تكون رقم"
+    if "delete_message" in body:
+        update["delete_message"] = bool(body["delete_message"])
+    if "reply_message" in body:
+        update["reply_message"] = str(body["reply_message"] or "")[:1000]
+    if "reply_delete_after" in body:
+        try:
+            update["reply_delete_after"] = max(0, min(int(body["reply_delete_after"]), 300))
+        except (TypeError, ValueError):
+            return None, "مدة حذف الرد لازم تكون رقم"
+    if "log_channel_id" in body:
+        v = str(body["log_channel_id"] or "")
+        update["log_channel_id"] = v if v.isdigit() else ""
+    return update, None
+
+@app.route("/api/automod/settings", methods=["GET"])
+@require_auth
+def get_automod_settings():
+    doc = get_db()["automod_settings"].find_one({"_id": "automod"}) or {}
+    doc.pop("_id", None)
+    cfg = deepcopy(AUTOMOD_DEFAULTS)
+    cfg.update(doc)
+    return jsonify(cfg)
+
+@app.route("/api/automod/settings", methods=["POST"])
+@require_auth
+def save_automod_settings():
+    body = request.get_json(silent=True) or {}
+    update, err = _am_sanitize(body)
+    if err:
+        return jsonify({"error": err}), 400
+    if update:
+        get_db()["automod_settings"].update_one({"_id": "automod"}, {"$set": update}, upsert=True)
+    return jsonify({"success": True, "updated": list(update.keys())})
+
+@app.route("/api/automod/log")
+@require_auth
+def get_automod_log():
+    try:
+        limit = max(1, min(int(request.args.get("limit", 20)), 100))
+    except ValueError:
+        limit = 20
+    rows = list(get_db()["mod_log"].find({"moderator": "AutoMod"}, {"_id": 0})
+                .sort("timestamp", -1).limit(limit))
+    return jsonify({"log": rows})
+
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Not found"}), 404
