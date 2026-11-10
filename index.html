@@ -232,6 +232,7 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
     </div>
     <div class="sb-sec"><div class="sb-sec-label">الإشراف</div>
       <div class="nav-item" onclick="go('moderation',this)"><span class="nav-ico">🔨</span>الإشراف</div>
+      <div class="nav-item" onclick="go('automod',this)"><span class="nav-ico">👁️</span>الرقابة</div>
       <div class="nav-item" onclick="go('roles',this)"><span class="nav-ico">🎭</span>إدارة الرولات</div>
       <div class="nav-item" onclick="go('bans',this)"><span class="nav-ico">🚫</span>المحظورون</div>
       <div class="nav-item" onclick="go('members',this)"><span class="nav-ico">👥</span>الأعضاء</div>
@@ -468,6 +469,66 @@ code{background:var(--bg2);border:1px solid var(--border2);border-radius:4px;pad
         </div>
         <div class="box"><div class="box-h"><div class="box-t">📋 سجل الإجراءات الأخيرة</div></div>
           <div class="t-wrap"><table><thead><tr><th>العضو</th><th>الإجراء</th><th>المشرف</th><th>السبب</th><th>التاريخ</th></tr></thead><tbody id="modLogTb"><tr><td colspan="5"><div class="empty"><div class="empty-i">📋</div><div>لا يوجد سجل</div></div></td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-automod">
+        <div class="ph"><div><div class="ph-t">👁️ الرقابة التلقائية</div><div class="ph-sub">حذف الرسائل المخالفة ومعاقبة صاحبها تلقائياً عند استخدام كلمة محظورة (المشرفون مستثنون)</div></div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <label class="tog-wrap" style="cursor:pointer"><div class="tog"><input type="checkbox" id="amEnabled"><div class="tog-sl"></div></div><span class="tog-lbl">تفعيل الرقابة</span></label>
+            <button class="btn btn-primary" onclick="saveAutomod()">💾 حفظ</button>
+          </div>
+        </div>
+
+        <div class="g2" style="margin-bottom:16px">
+          <div class="box"><div class="box-h"><div class="box-t">💬 الدردشات والعقوبة</div></div>
+            <div class="fg"><label>📺 الدردشات المراقَبة</label>
+              <select id="amChSel" onchange="addAmChannel(this.value);this.value=''"><option value="">➕ اختر دردشة لإضافتها</option></select>
+              <div id="amChips" style="margin-top:8px"></div>
+              <div style="color:var(--text2);font-size:11px;margin-top:6px">إذا ما اخترت أي دردشة، الرقابة تشتغل على كل الدردشات.</div>
+            </div>
+            <div class="fg"><label>⚖️ العقوبة</label>
+              <select id="amPunish" onchange="toggleAmTimeout()">
+                <option value="none">⚠️ تحذير فقط (بدون عقوبة)</option>
+                <option value="timeout">⏰ تايم أوت</option>
+                <option value="kick">👢 طرد</option>
+                <option value="ban">🔨 حظر</option>
+              </select>
+            </div>
+            <div class="fg" id="amTimeoutWrap" style="display:none"><label>⏱️ مدة التايم أوت (بالدقائق)</label><input type="number" id="amTimeout" min="1" max="40320" value="10"></div>
+            <div class="tog-wrap"><label class="tog"><input type="checkbox" id="amDelete" checked><span class="tog-sl"></span></label><span class="tog-lbl">🗑️ حذف رسالة المخالف</span></div>
+          </div>
+
+          <div class="box"><div class="box-h"><div class="box-t">🤖 رد البوت</div></div>
+            <div class="fg"><label>💬 رسالة الرد (اتركها فاضية لو ما تبي رد)</label><textarea id="amReply" placeholder="⚠️ {member} رسالتك تحتوي على كلمة ممنوعة"></textarea>
+              <div style="color:var(--text2);font-size:11px;margin-top:6px">المتغيرات: <code>{member}</code> منشن العضو · <code>{word}</code> الكلمة · <code>{channel}</code> الدردشة</div>
+            </div>
+            <div class="r2">
+              <div class="fg"><label>⏳ حذف الرد بعد (ثانية، 0 = لا يُحذف)</label><input type="number" id="amReplyDel" min="0" max="300" value="10"></div>
+              <div class="fg"><label>📋 قناة سجل المخالفات</label><select id="amLog"><option value="">بدون</option></select></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="box" style="margin-bottom:16px"><div class="box-h"><div class="box-t">🚫 الكلمات المحظورة</div><span style="font-size:11px;color:var(--text2)" id="amWordCount">0</span></div>
+          <div class="r2">
+            <div class="fg"><label>🔎 طريقة المطابقة</label>
+              <select id="amMode">
+                <option value="contains">تحتوي الكلمة (حتى لو داخل كلمة ثانية)</option>
+                <option value="word">كلمة كاملة فقط</option>
+              </select>
+            </div>
+            <div class="fg"><label>➕ إضافة كلمات</label>
+              <div style="display:flex;gap:8px"><input type="text" id="amWordInput" placeholder="#هكر #بوتات #ثغرة" onkeydown="if(event.key==='Enter'){event.preventDefault();addAmWords()}"><button class="btn btn-success" onclick="addAmWords()">إضافة</button></div>
+            </div>
+          </div>
+          <div style="color:var(--text2);font-size:11px;margin:-4px 0 12px">افصل بين الكلمات بـ <code>#</code> أو فاصلة أو سطر جديد. التشكيل والتطويل وتكرار الحروف (هككككر) يتم تجاهله تلقائياً.</div>
+          <div id="amWords"></div>
+          <div style="margin-top:12px"><button class="btn btn-primary" onclick="saveAutomod()">💾 حفظ الكل</button></div>
+        </div>
+
+        <div class="box"><div class="box-h"><div class="box-t">📋 آخر المخالفات</div><button class="btn btn-outline btn-sm" onclick="loadAutomodLog()">🔄</button></div>
+          <div class="t-wrap"><table><thead><tr><th>العضو</th><th>الإجراء</th><th>السبب</th><th>التاريخ</th></tr></thead><tbody id="amLogTb"><tr><td colspan="4"><div class="empty"><div class="empty-i">📋</div><div>لا توجد مخالفات</div></div></td></tr></tbody></table></div>
         </div>
       </div>
 
@@ -732,7 +793,7 @@ async function refreshChannels() {
 }
 
 function populateAllChannelSelects() {
-  const ids = ['cfgLog','cfgWelcomeCh','vCh','vLog','wCh','msgChannel','delChannel','arCh','embChannel','ticketChannel','rrChannel','ccTargetCh','ccPanelCh'];
+  const ids = ['cfgLog','cfgWelcomeCh','vCh','vLog','wCh','msgChannel','delChannel','arCh','embChannel','ticketChannel','rrChannel','ccTargetCh','ccPanelCh','amChSel','amLog'];
   ids.forEach(id => {
     const sel = document.getElementById(id);
     if (!sel) return;
@@ -774,7 +835,7 @@ function renderRolesList() {
   el.innerHTML = cachedRoles.map(r => `<div class="role-tag" style="border-color:${r.color||'var(--border2)'};margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;padding:7px 12px"><div style="display:flex;align-items:center;gap:8px"><div class="role-dot" style="background:${r.color||'var(--text3)'}"></div><span>@${esc(r.name)}</span></div><code style="font-size:10px">${r.id}</code></div>`).join('');
 }
 
-const ptitles={overview:'نظرة عامة',config:'إعدادات البوت',stats:'إحصائيات متقدمة',verify:'التحقق',autoreply:'الرد التلقائي',welcome:'الترحيب والمغادرة',embeds:'رسائل الإيمبد',reactroles:'الرولات التفاعلية',tickets:'نظام التيكت',contest:'المسابقات',messages:'إرسال رسائل',moderation:'الإشراف',roles:'إدارة الرولات',bans:'المحظورون',members:'الأعضاء',queue:'قائمة الانتظار'};
+const ptitles={overview:'نظرة عامة',config:'إعدادات البوت',stats:'إحصائيات متقدمة',verify:'التحقق',autoreply:'الرد التلقائي',welcome:'الترحيب والمغادرة',embeds:'رسائل الإيمبد',reactroles:'الرولات التفاعلية',tickets:'نظام التيكت',contest:'المسابقات',messages:'إرسال رسائل',moderation:'الإشراف',automod:'الرقابة',roles:'إدارة الرولات',bans:'المحظورون',members:'الأعضاء',queue:'قائمة الانتظار'};
 
 function go(name, el) {
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -797,6 +858,7 @@ function go(name, el) {
   if(name==='tickets') loadTickets();
   if(name==='contest') loadContest();
   if(name==='moderation') loadModLog();
+  if(name==='automod') loadAutomod();
   if(name==='roles') { loadRoles(); }
   if(name==='messages') populateEmbedSelectForMsg();
 }
@@ -1231,6 +1293,100 @@ function loadMembers(){api('/api/members?limit=100').then(d=>{const tb=document.
 function deleteMember(id){if(!id||!confirm('حذف توثيق هذا العضو؟ سيرجع لحالة غير موثق بالسيرفر.'))return;api('/api/members/'+id,{method:'DELETE'}).then(d=>{if(d.success){toast('✅ تم حذف التوثيق');loadMembers();loadStats();}else{toast('❌ '+(d.error||'خطأ'),'error');}}).catch(()=>toast('❌ خطأ','error'));}
 function loadQueue(){api('/api/queue').then(d=>{const tb=document.getElementById('queTb');if(!d.queue||d.queue.length===0){tb.innerHTML='<tr><td colspan="3"><div class="empty"><div class="empty-i">📭</div><div>قائمة الانتظار فارغة</div></div></td></tr>';return;}tb.innerHTML=d.queue.map(q=>`<tr><td><code>${q.discord_id||'-'}</code></td><td><span class="badge bb">${q.action||'-'}</span></td><td>${(q.timestamp||'').slice(0,16)}</td></tr>`).join('');}).catch(()=>{});}
 function clearQueue(){if(!confirm('مسح جميع عناصر قائمة الانتظار؟'))return;api('/api/queue/clear',{method:'POST'}).then(d=>{if(d.success){toast('✅ تم المسح');loadQueue();}}).catch(()=>toast('❌ خطأ','error'));}
+// ══════════ الرقابة التلقائية (AutoMod) ══════════
+let amState = {channel_ids: [], words: []};
+const _am = id => document.getElementById(id);
+
+function amEnsureOption(sel, val) {
+  if (val && ![...sel.options].some(o => o.value === val)) {
+    const o = document.createElement('option'); o.value = val; o.textContent = val; sel.appendChild(o);
+  }
+}
+function toggleAmTimeout() {
+  _am('amTimeoutWrap').style.display = _am('amPunish').value === 'timeout' ? 'block' : 'none';
+}
+function renderAmChips() {
+  const el = _am('amChips');
+  if (!amState.channel_ids.length) { el.innerHTML = '<span class="badge bb">🌐 كل الدردشات</span>'; return; }
+  el.innerHTML = amState.channel_ids.map((id, i) => {
+    const ch = cachedChannels.find(c => c.id === id);
+    return `<span class="role-tag">#${esc(ch ? ch.name : id)} <span style="cursor:pointer;color:var(--danger)" onclick="removeAmChannel(${i})">✕</span></span>`;
+  }).join('');
+}
+function addAmChannel(id) {
+  if (!id || amState.channel_ids.includes(id)) return;
+  amState.channel_ids.push(id); renderAmChips();
+}
+function removeAmChannel(i) { amState.channel_ids.splice(i, 1); renderAmChips(); }
+
+function renderAmWords() {
+  const el = _am('amWords');
+  _am('amWordCount').textContent = amState.words.length + ' كلمة';
+  if (!amState.words.length) { el.innerHTML = '<div class="empty" style="padding:20px"><div class="empty-i">🚫</div><div>لا توجد كلمات محظورة</div></div>'; return; }
+  el.innerHTML = amState.words.map((w, i) =>
+    `<span class="role-tag">🚫 ${esc(w)} <span style="cursor:pointer;color:var(--danger)" onclick="removeAmWord(${i})">✕</span></span>`).join('');
+}
+function addAmWords() {
+  const inp = _am('amWordInput');
+  const parts = inp.value.split(/[#،,\n]+/).map(x => x.trim()).filter(Boolean);
+  let added = 0;
+  parts.forEach(p => { if (!amState.words.some(w => w.toLowerCase() === p.toLowerCase())) { amState.words.push(p); added++; } });
+  inp.value = ''; renderAmWords();
+  if (added) toast('✅ أُضيفت ' + added + ' كلمة — لا تنسى الحفظ', 'info');
+}
+function removeAmWord(i) { amState.words.splice(i, 1); renderAmWords(); }
+
+async function loadAutomod() {
+  try {
+    const d = await api('/api/automod/settings');
+    if (d.error) throw new Error(d.error);
+    amState.channel_ids = d.channel_ids || [];
+    amState.words = d.words || [];
+    _am('amEnabled').checked = !!d.enabled;
+    _am('amPunish').value = d.punishment || 'none';
+    _am('amTimeout').value = d.timeout_minutes || 10;
+    _am('amDelete').checked = d.delete_message !== false;
+    _am('amReply').value = d.reply_message || '';
+    _am('amReplyDel').value = d.reply_delete_after ?? 10;
+    _am('amMode').value = d.match_mode || 'contains';
+    amEnsureOption(_am('amLog'), d.log_channel_id || '');
+    _am('amLog').value = d.log_channel_id || '';
+    toggleAmTimeout(); renderAmChips(); renderAmWords();
+  } catch (e) { toast('❌ تعذّر تحميل إعدادات الرقابة', 'error'); }
+  loadAutomodLog();
+}
+
+async function saveAutomod() {
+  const body = {
+    enabled: _am('amEnabled').checked,
+    channel_ids: amState.channel_ids,
+    words: amState.words,
+    match_mode: _am('amMode').value,
+    punishment: _am('amPunish').value,
+    timeout_minutes: parseInt(_am('amTimeout').value) || 10,
+    delete_message: _am('amDelete').checked,
+    reply_message: _am('amReply').value,
+    reply_delete_after: parseInt(_am('amReplyDel').value) || 0,
+    log_channel_id: _am('amLog').value,
+  };
+  try {
+    const d = await api('/api/automod/settings', {method: 'POST', body});
+    if (d.error) { toast('❌ ' + d.error, 'error'); return; }
+    toast('✅ تم حفظ إعدادات الرقابة');
+  } catch (e) { toast('❌ فشل الحفظ', 'error'); }
+}
+
+async function loadAutomodLog() {
+  const tb = _am('amLogTb');
+  try {
+    const d = await api('/api/automod/log?limit=20');
+    const rows = d.log || [];
+    if (!rows.length) { tb.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="empty-i">📋</div><div>لا توجد مخالفات</div></div></td></tr>'; return; }
+    const lbl = {automod_warn: '⚠️ تحذير', automod_timeout: '⏰ تايم أوت', automod_kick: '👢 طرد', automod_ban: '🔨 حظر'};
+    tb.innerHTML = rows.map(r => `<tr><td>${esc(r.username)}<br><code>${esc(r.user_id)}</code></td><td>${lbl[r.action] || esc(r.action)}</td><td>${esc(r.reason)}</td><td>${esc(String(r.timestamp || '').slice(0, 16).replace('T', ' '))}</td></tr>`).join('');
+  } catch (e) {}
+}
+
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 if(token){document.getElementById('loginWrap').classList.remove('show');document.getElementById('appWrap').classList.add('show');setGuildLogo(localStorage.getItem('guild_icon'),localStorage.getItem('guild_name'));loadAll();setTimeout(refreshChannels,500);}
 </script>
